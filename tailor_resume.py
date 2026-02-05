@@ -65,15 +65,6 @@ def main():
         print("4. Apply with confidence! 🚀")
         print("="*60 + "\n")
 
-        # Ask if user wants to see the output
-        show_output = input("Would you like to see the tailored resume now? (y/n): ").strip().lower()
-        if show_output == 'y':
-            print("\n" + "="*60)
-            print("TAILORED RESUME")
-            print("="*60 + "\n")
-            print(tailored_resume)
-            print("\n" + "="*60 + "\n")
-
     except Exception as e:
         print(f"\n✗ Error during tailoring: {e}")
         sys.exit(1)
