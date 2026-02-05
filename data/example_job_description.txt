@@ -1,0 +1,61 @@
+Senior Data Analyst
+DataCorp Solutions | San Francisco, CA | Full-time
+
+About Us:
+DataCorp Solutions is a leading analytics company helping businesses make data-driven decisions. We work with Fortune 500 companies to transform their data into actionable insights.
+
+Job Description:
+We're seeking a Senior Data Analyst to join our growing analytics team. You'll work closely with stakeholders across the organization to analyze complex datasets, build dashboards, and drive strategic decision-making.
+
+Responsibilities:
+- Develop and maintain interactive dashboards using Tableau and Power BI
+- Write complex SQL queries to extract and transform data from multiple databases
+- Perform statistical analysis and A/B testing to measure product performance
+- Collaborate with cross-functional teams including product, marketing, and engineering
+- Present data insights and recommendations to senior leadership
+- Mentor junior analysts and promote data best practices
+- Automate reporting processes using Python and data pipelines
+- Conduct stakeholder communication to understand business requirements
+- Design and implement ETL processes for data integration
+- Monitor data quality and ensure accuracy of reports
+
+Required Qualifications:
+- 5+ years of experience in data analysis or related field
+- Expert-level SQL skills (complex queries, joins, window functions)
+- Strong proficiency in Python (Pandas, NumPy, data manipulation)
+- Advanced Tableau skills (calculated fields, parameters, dashboards)
+- Experience with Power BI or similar BI tools
+- Excellent stakeholder communication and presentation skills
+- Statistical analysis experience (hypothesis testing, regression)
+- Bachelor's degree in Statistics, Mathematics, Computer Science, or related field
+
+Preferred Qualifications:
+- Experience with cloud platforms (AWS, GCP, or Azure)
+- Knowledge of machine learning concepts
+- Familiarity with Git version control
+- Experience with data storytelling and executive reporting
+- Prior experience in SaaS or tech industry
+
+Technical Skills:
+- SQL (required)
+- Python (required)
+- Tableau (required)
+- Power BI (preferred)
+- Excel (advanced level)
+- Data visualization
+- ETL pipelines
+- Statistical modeling
+- A/B testing
+- Data warehousing concepts
+
+What We Offer:
+- Competitive salary ($110,000 - $140,000)
+- Health, dental, and vision insurance
+- 401(k) with company match
+- Unlimited PTO
+- Professional development budget
+- Remote work flexibility
+- Collaborative team environment
+
+To Apply:
+Please submit your resume highlighting your data analysis experience and technical skills.
