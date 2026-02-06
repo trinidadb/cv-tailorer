@@ -8,6 +8,7 @@ import sys
 
 from src.cv_tailor import CVTailor
 from src.utils import load_text_file
+from src.utils.latex_converter import LaTeXConverter
 
 
 def main():
@@ -43,7 +44,11 @@ def main():
 
         _ = CVTailor.save_tailored_resume(tailored_resume, company_name=company_name, position_title=position_title)
 
-        # Display summary
+        latex_output = LaTeXConverter().text_to_latex(tailored_resume)
+
+        with open("output/tailored_cv.tex", "w") as f:
+            f.write(latex_output)
+
         print("\n" + "="*60)
         print("✓ SUCCESS!")
         print("="*60)
