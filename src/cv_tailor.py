@@ -3,6 +3,7 @@ CV Tailor Engine - Core functionality for resume tailoring
 """
 from datetime import datetime
 from pathlib import Path
+import re
 
 from src.llm import GeminiClient
 from config.constants import ValidFileExtensions
@@ -49,6 +50,18 @@ class CVTailor:
             raise
 
     @staticmethod
+    def _sanitize_filename(text: str) -> str:
+        """
+        Sanitize text for use in filename
+        """
+        text = re.sub(r'[^\w\s-]', '', text)  # Remove special characters, keep alphanumeric, spaces, and hyphens
+        text = re.sub(r'\s+', '-', text)  # Replace spaces with hyphens
+        text = re.sub(r'-+', '-', text)  # Remove consecutive hyphens
+        text = text[:50]  # Limit length
+        text = text.strip('-')  # Remove leading/trailing hyphens
+        return text
+
+    @staticmethod
     def save_tailored_resume(
         tailored_resume: str,
         file_extension: ValidFileExtensions = ValidFileExtensions.TEXT,
@@ -60,7 +73,7 @@ class CVTailor:
         Path(output_dir).mkdir(parents=True, exist_ok=True) # Create output directory if it doesn't exist.
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base_filename = f"tailored_{timestamp}_{company_name}_{position_title}"
+        base_filename = CVTailor._sanitize_filename(f"tailored_{timestamp}_{company_name}_{position_title}")
 
         match file_extension:
 
