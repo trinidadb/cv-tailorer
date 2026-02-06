@@ -53,6 +53,7 @@ python tailor_resume.py "data/your_master_resume.txt" "data/target_job_descripti
 - **Scope:** This tool focuses exclusively on the high-impact, dynamic sections of a CV: **HEADLINE**, **PROFESSIONAL SUMMARY**, **PROFESSIONAL EXPERIENCE**, and **SKILLS**.
 - **Static Sections:** It does **not** process Education, Certificates, or Personal Info. It is recommended to keep these sections static in your final LaTeX/Word template and only update the AI-generated sections.
 - **Skills Input:** For best results, list your skills in your master resume as a "rough list" rather than grouping them. The LLM will intelligently categorize and select the most relevant ones for the specific JD.
+- **Profile Input:** For best results, don't include a profile in the input CV. The tool will build it for you :D.
 - **Prompt Logic:** This project uses `prompt_v3`, which is specifically tuned to:
     - Match Job Titles exactly.
     - Vary action verbs (e.g., swapping "Led" for "Spearheaded" or "Architected") to avoid keyword-stuffing penalties.

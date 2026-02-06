@@ -1,9 +1,3 @@
-John Smith
-Email: john.smith@email.com | Phone: (555) 123-4567 | LinkedIn: linkedin.com/in/johnsmith
-Location: San Francisco, CA
-
-PROFESSIONAL SUMMARY
-Data analyst with 4 years of experience transforming complex datasets into actionable insights. Skilled in SQL, Python, and data visualization tools. Proven track record of improving operational efficiency and driving data-driven decision making.
 
 SKILLS
 Python, SQL, Tableau, Power BI, Excel, R, Pandas, NumPy, Data Visualization, Statistical Analysis, ETL Processes, Dashboard Development, Data Cleaning, Reporting, Google Analytics, A/B Testing, Machine Learning Basics, Git, Jupyter Notebooks
@@ -30,25 +24,3 @@ Data Intern | Finance Corp | Oakland, CA | Summer 2019
 - Created basic visualizations in Excel to present budget variance analysis
 - Learned SQL fundamentals and helped with database queries
 - Participated in team meetings and contributed to data strategy discussions
-
-EDUCATION
-
-Bachelor of Science in Statistics | University of California, Berkeley | 2015 - 2019
-- GPA: 3.6/4.0
-- Relevant coursework: Statistical Modeling, Data Mining, Database Management, Probability Theory
-- Senior Project: Built a machine learning model to predict student performance with 85% accuracy
-
-CERTIFICATIONS
-- Google Data Analytics Professional Certificate (2020)
-- Tableau Desktop Specialist (2021)
-
-PROJECTS
-Customer Churn Prediction Model
-- Built a machine learning model using Python to predict customer churn with 82% accuracy
-- Utilized features including customer demographics, usage patterns, and support tickets
-- Presented findings to leadership, influencing customer retention strategy
-
-Sales Dashboard
-- Created an interactive Power BI dashboard tracking regional sales performance
-- Integrated data from CRM, financial systems, and customer databases
-- Dashboard now used daily by sales team and executives
