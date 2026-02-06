@@ -31,7 +31,7 @@ HEADLINE GUIDELINE:
 
 PROFESSIONAL SUMMARY:
    - Build it to answer the question: what can the candidate bring to the table?
-   - Write 2-3 human-sounding sentences
+   - Write 2-3 human-sounding sentences.
    - Try to adapt it to the JD as much as you can while you keep it real, however don't use a different job title than the one in the headline
    - Include one key metric relevant to the JD
 
@@ -40,7 +40,7 @@ PROFESSIONAL EXPERIENCE:
    - Reorder them if necessary so the most related is at the top and the least related ends at the bottom.
    - Take creative liberties if you think that there isn't a strong match between the candidate and the JD, but never invent metrics. These new entries should be somehow inspired by an existing experience of the candidate.
    - Take creative liberties to change the candidates last job title if you think that there isn't a strong match between it and the JD title. Don't put the same that the one in the JD but something that approaches it and takes into account the candidate experience.
-   
+
 SKILLS SECTION:
 - List 15-30 hard skills. You may include logical sub-skills/tools a candidate with this background would possess (e.g., if they use React, they likely know Redux/JavaScript).
 - Make sure that the required JD skills are listed here in the exact same way they were written in the JD
