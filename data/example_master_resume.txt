@@ -1,0 +1,26 @@
+
+SKILLS
+Python, SQL, Tableau, Power BI, Excel, R, Pandas, NumPy, Data Visualization, Statistical Analysis, ETL Processes, Dashboard Development, Data Cleaning, Reporting, Google Analytics, A/B Testing, Machine Learning Basics, Git, Jupyter Notebooks
+
+PROFESSIONAL EXPERIENCE
+
+Data Analyst | Tech Solutions Inc. | San Francisco, CA | Jan 2021 - Present
+- Analyzed customer behavior data from 500K+ users to identify trends and improve retention strategies
+- Built automated dashboards in Tableau that reduced manual reporting time by 15 hours per week
+- Collaborated with marketing team to optimize campaign performance, resulting in 25% increase in conversion rates
+- Performed A/B testing on website features, leading to 18% improvement in user engagement
+- Created SQL queries to extract and transform data from multiple databases for executive reporting
+- Mentored 2 junior analysts on best practices for data analysis and visualization
+
+Junior Data Analyst | Retail Analytics Co. | San Francisco, CA | Jun 2019 - Dec 2020
+- Processed and cleaned datasets containing 1M+ records using Python and Pandas
+- Developed Excel-based reports tracking sales performance across 50+ retail locations
+- Supported senior analysts in building predictive models for inventory management
+- Conducted market research analysis to identify customer segmentation opportunities
+- Maintained data quality by implementing validation checks that reduced errors by 30%
+
+Data Intern | Finance Corp | Oakland, CA | Summer 2019
+- Assisted in gathering and organizing financial data for quarterly reports
+- Created basic visualizations in Excel to present budget variance analysis
+- Learned SQL fundamentals and helped with database queries
+- Participated in team meetings and contributed to data strategy discussions
