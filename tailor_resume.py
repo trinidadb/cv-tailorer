@@ -5,9 +5,11 @@ Quick command-line tool for resume tailoring
 """
 
 import sys
-
+from config.constants import ValidFileExtensions
+from config.schemas import TailoredResume
 from src.cv_tailor import CVTailor
 from src.utils import load_text_file
+from src.utils import StructuredLaTeXConverter, UnstructuredLaTeXConverter
 
 
 def main():
@@ -39,11 +41,22 @@ def main():
         tailored_resume = tailor.tailor_resume(
             master_resume=master_resume,
             job_description=job_description,
+            generate_then_extract=True
         )
 
-        _ = CVTailor.save_tailored_resume(tailored_resume, company_name=company_name, position_title=position_title)
+        # tailored_resume = load_text_file("output/tailored_20260207_202322_ZS_Data-Analyst.txt")
 
-        # Display summary
+        if isinstance(tailored_resume, TailoredResume):
+            timestamp = None
+            latex_output = StructuredLaTeXConverter().convert(tailored_resume)
+
+        else:
+            # RESUME AS TEXT FOR COMPARISSON AS MANY TIMES UNSTRUCTURED LATEX CONVERTER FAILS
+            _, timestamp = CVTailor.save_tailored_resume(tailored_resume, file_extension=ValidFileExtensions.TEXT, company_name=company_name, position_title=position_title)
+            latex_output = UnstructuredLaTeXConverter().text_to_latex(tailored_resume)
+
+        _, _ = CVTailor.save_tailored_resume(latex_output, file_extension=ValidFileExtensions.LATEX, company_name=company_name, position_title=position_title, timestamp=timestamp)
+
         print("\n" + "="*60)
         print("✓ SUCCESS!")
         print("="*60)

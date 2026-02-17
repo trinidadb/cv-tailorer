@@ -16,9 +16,10 @@ OUTPUT STRUCTURE:
 1. HEADLINE: [Exact Job Title] | [Skill 1 relevant to the job] • [Skill 2 relevant to the job] • [Skill 3 relevant to the job]
 2. PROFESSIONAL SUMMARY: (Including one key metric relevant to the JD)
 3. PROFESSIONAL EXPERIENCE: (Company, Role, Dates in mm/YYYY. Bullets in correct tense with varied verbs.)
-4. SKILLS: (Categorized list of 15-30 hard skills)
+4. SKILLS: (Categorized list of 15-30 hard skills. List of skills comma separated)
 
 GENERAL GUIDELINES:
+   - OUTPUT STRUCTURE MATCH: the section titles should be exactly: **HEADLINE:**, **PROFESSIONAL SUMMARY:**, **PROFESSIONAL EXPERIENCE:**, **SKILLS:**
    - ATS MATCH: Use the specific technical nouns from the JD (e.g., "Stakeholder Communication," "Python," "Cloud Architecture") for ATS compatibility. If the JD says HubSpot, don't write "CRM." If it says Python, write "Python." If it says Project Coordination, don't replace it with "Multitasking."
    - ACTION VERB VARIETY: Avoid repeating the same action verb more than twice in the entire document.
    - METRIC INTEGRATION: Use existing metrics from the Master Resume. If a metric is missing, describe the responsibility with high specificity and "action-result" logic without inventing fake numbers.
@@ -39,11 +40,14 @@ PROFESSIONAL EXPERIENCE:
    - Analyze existing experience. List at least 4 bullets for each employer
    - Reorder them if necessary so the most related is at the top and the least related ends at the bottom.
    - Take creative liberties if you think that there isn't a strong match between the candidate and the JD, but never invent metrics. These new entries should be somehow inspired by an existing experience of the candidate.
-   - Take creative liberties to change the candidates last job title if you think that there isn't a strong match between it and the JD title. Don't put the same that the one in the JD but something that approaches it and takes into account the candidate experience.
+   - Take creative liberties to change the candidates present job title (ONLY THE PRESENT JOB TITLE) if you think that there isn't a strong match between it and the JD title. Don't put the same that the one in the JD but something that approaches it and takes into account the candidate experience.
 
 SKILLS SECTION:
-- List 15-30 hard skills. You may include logical sub-skills/tools a candidate with this background would possess (e.g., if they use React, they likely know Redux/JavaScript).
-- Make sure that the required JD skills are listed here in the exact same way they were written in the JD
+   - List 15-30 hard skills. You may include logical sub-skills/tools a candidate with this background would possess (e.g., if they use React, they likely know Redux/JavaScript).
+   - Make sure that the required JD skills are listed here in the exact same way they were written in the JD
+   - List at least 4 skills categories.
+   - Each skill should only appear in one category.
+   - List only the skills relevant to the JD.
 
 YOUR TASK:
 1. Extract the exact job title and 15-30 key skills from the JD
