@@ -46,7 +46,7 @@ GEMINI_API_KEY=your_api_key_here
 The tool requires four main inputs to generate a tailored CV. Run the script using the following command:
 
 ```
-python tailor_resume.py "data/your_master_resume.txt" "data/target_job_description.txt" "Company Name" "Position Title"
+python -m src.tailor_resume "data/your_master_resume.txt" "data/target_job_description.txt" "Company Name" "Position Title"
 ```
 
 ## ⚠️ Important Considerations

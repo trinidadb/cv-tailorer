@@ -5,9 +5,9 @@ LLM Client Manager - Handles Anthropic and Gemini API interactions
 from google import genai
 from google.genai import types as genaiTypes
 
-from config.constants import MAX_TOKENS, GEMINI_TEMPERATURE
-from config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
-from config.schemas import TailoredResume
+from src.config.constants import MAX_TOKENS, GEMINI_TEMPERATURE
+from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
+from src.config.schemas import TailoredResume
 from src.llm.base import BaseLLMClient
 
 

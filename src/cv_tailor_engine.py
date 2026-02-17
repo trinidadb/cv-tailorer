@@ -5,9 +5,9 @@ from datetime import datetime
 from pathlib import Path
 import re
 
+from src.config.constants import ValidFileExtensions
+from src.config.prompts import USER_PROMPT_TEMPLATE
 from src.llm import GeminiClient
-from config.constants import ValidFileExtensions
-from config.prompts import USER_PROMPT_TEMPLATE
 
 
 class CVTailor:
