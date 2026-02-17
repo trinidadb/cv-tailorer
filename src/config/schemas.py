@@ -13,6 +13,8 @@ class SkillEntry(BaseModel):
     skills: list[str]
 
 class TailoredResume(BaseModel):
+    company: str
+    position_title: str
     headline: str
     professional_summary: str
     professional_experience: list[ExperienceEntry]

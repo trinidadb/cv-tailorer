@@ -1,0 +1,1 @@
+from src.routers.cv_tailor import router as cv_tailor

@@ -4,7 +4,7 @@ LLM Client Manager - Handles Anthropic and Gemini API interactions
 
 from abc import ABC, abstractmethod
 
-from config.constants import MAX_TOKENS
+from src.config.constants import MAX_TOKENS
 
 
 class BaseLLMClient(ABC):
