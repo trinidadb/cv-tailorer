@@ -24,6 +24,8 @@ class CVTailor:
         self,
         master_resume: str,
         job_description: str,
+        structured_output: bool = True,
+        generate_then_extract: bool = False,
         # system_prompt: str = None, # if you want more user customization in the future
         # temperature: int = None,
         # max_tokens: int = None
@@ -40,7 +42,11 @@ class CVTailor:
         print()
 
         try:
-            tailored_resume = self.llm_client.generate(user_prompt=user_prompt)
+            if structured_output:
+                tailored_resume = self.llm_client.generate_then_extract_and_structure(user_prompt=user_prompt) if generate_then_extract else self.llm_client.generate_with_structured_output(user_prompt=user_prompt)
+            else:
+                tailored_resume = self.llm_client.generate(user_prompt=user_prompt)
+
             print("✓ Resume tailored successfully!\n")
 
             return tailored_resume
@@ -67,22 +73,20 @@ class CVTailor:
         file_extension: ValidFileExtensions = ValidFileExtensions.TEXT,
         output_dir: str = "output",
         company_name: str = "Unknown",
-        position_title: str = "Unknown"
+        position_title: str = "Unknown",
+        timestamp: str = None
     ) -> str:
 
         Path(output_dir).mkdir(parents=True, exist_ok=True) # Create output directory if it doesn't exist.
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = timestamp or datetime.now().strftime("%Y%m%d_%H%M%S")
         base_filename = CVTailor._sanitize_filename(f"tailored_{timestamp}_{company_name}_{position_title}")
 
-        match file_extension:
-
-            case ValidFileExtensions.TEXT:
-                path = f"{output_dir}/{base_filename}{file_extension.value}"      
-                try:
-                    with open(path, 'w', encoding='utf-8') as f:
-                        f.write(tailored_resume)
-                    print(f"✓ Saved text resume to: {path}")
-                    return path
-                except Exception as e:
-                    print(f"✗ Error saving text file: {e}")
+        path = f"{output_dir}/{base_filename}{file_extension.value}"
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(tailored_resume)
+            print(f"✓ Saved text resume to: {path}")
+            return path, timestamp
+        except Exception as e:
+            print(f"✗ Error saving text file: {e}")

@@ -1,4 +1,5 @@
 """
+DEPRECIATED - It's use is restricted to when the output wasn't structured and it's behaviour is a little stochastic. In other words, you are lucky if it works in the first try. Not a fan of that, but you are free to use it and customize it.
 LaTeX Converter - Converts text resume to LaTeX format
 Built specifically for the CV Tailor output format
 """
@@ -6,20 +7,20 @@ Built specifically for the CV Tailor output format
 import re
 
 
-class LaTeXConverter:
+class UnstructuredLaTeXConverter:
     """Converts plain text resume to LaTeX format"""
-    
+
     def __init__(self):
         pass
-    
+
     def text_to_latex(self, resume_text: str, personal_info: dict = None) -> str:
         """
         Convert a plain text resume to LaTeX format
-        
+
         Args:
             resume_text: The tailored resume in text format
             personal_info: Not used - we use defaults
-            
+
         Returns:
             LaTeX formatted resume
         """
@@ -28,15 +29,23 @@ class LaTeXConverter:
         summary = self._extract_summary(resume_text)
         experience = self._extract_experience(resume_text)
         skills = self._extract_skills(resume_text)
-        
+
         # Build the complete LaTeX document
         latex_doc = self._build_latex_document(headline, summary, experience, skills)
-        
+
         return latex_doc
-    
+
     def _extract_headline(self, text: str) -> str:
         """Extract the headline section"""
-        match = re.search(r"\*\*HEADLINE:\*\*\s*\n(.+?)(?=\n\n|\*\*SKILLS.)", text, re.DOTALL)
+        match = re.search(r"\*\*HEADLINE:\*\*\s*\n(.+?)(?=\n\n|\*\*PROFESSIONAL SUMMARY.)", text, re.DOTALL)
+
+        if not match:
+            match = re.search(
+                r"^HEADLINE:\s*(.+?)(?=\n\n|PROFESSIONAL SUMMARY|\n[A-Z]+:|$)", 
+                text, 
+                re.DOTALL | re.MULTILINE
+            )
+
         if match:
             return match.group(1).strip()
         return "Your Professional Title"
@@ -44,6 +53,14 @@ class LaTeXConverter:
     def _extract_summary(self, text: str) -> str:
         """Extract the professional summary"""
         match = re.search(r"\*\*PROFESSIONAL SUMMARY:\*\*\s*\n(.+?)(?=\n\n|\*\*PROFESSIONAL EXPERIENCE)", text, re.DOTALL)
+
+        if not match:
+            match = re.search(
+                r"^PROFESSIONAL SUMMARY:\s*(.+?)(?=\n\n|PROFESSIONAL EXPERIENCE|\n[A-Z]+:|$)", 
+                text, 
+                re.DOTALL | re.MULTILINE
+            )
+
         if match:
             return match.group(1).strip()
         return ""
@@ -51,6 +68,14 @@ class LaTeXConverter:
     def _extract_experience(self, text: str) -> str:
         """Extract the professional experience section"""
         match = re.search(r"\*\*PROFESSIONAL EXPERIENCE:\*\*\s*\n(.+?)(?=\*\*SKILLS)", text, re.DOTALL)
+
+        if not match:
+            match = re.search(
+                r"^PROFESSIONAL EXPERIENCE:\s*(.+?)(?=\n\n|SKILLS|\n[A-Z]+:|$)",
+                text, 
+                re.DOTALL | re.MULTILINE
+            )
+
         if match:
             return match.group(1).strip()
         return ""
@@ -58,8 +83,14 @@ class LaTeXConverter:
     def _extract_skills(self, text: str) -> str:
         """Extract the skills section"""
         match = re.search(r'\*\*SKILLS:\*\*\s*\n(.+?)$', text, re.DOTALL)
-        print("SKILLS")
-        print(match.group(1).strip())
+
+        if not match:
+            match = re.search(
+                r"^SKILLS:\s*(.+?)$",
+                text,
+                re.DOTALL | re.MULTILINE
+            )
+
         if match:
             return match.group(1).strip()
         return ""
@@ -86,10 +117,11 @@ class LaTeXConverter:
         text = text.replace('"', '``')  # smart quote
         text = text.replace('"', "''")  # smart quote
         text = text.replace('•', r'$\bullet$')  # bullet
-        
+
         return text
-    
+
     def _format_experience_section(self, experience_text: str) -> str:
+        print("START EXPERIENCE")
         """Format the experience section for LaTeX"""
         if not experience_text:
             return ""
@@ -97,8 +129,13 @@ class LaTeXConverter:
         # Split by company (each starts with **)
         companies = re.split(r'\n\s*\n(?=\s*\*\*[A-Z])', experience_text)
 
+        print("COMPANIES")
+        print(companies)
+
         latex_output = ""
         for company_block in companies:
+            print("BLOCK")
+            print(company_block)
             company_block = re.sub(r'^\s+', '', company_block, flags=re.MULTILINE)
             if not company_block.strip():
                 continue
@@ -119,7 +156,7 @@ class LaTeXConverter:
 
             # Second line: **Job Title** | Dates
             if len(lines) > 1:
-                title_line = lines[1].replace('**', '') if lines[0].startswith('**') else lines
+                title_line = lines[1].replace('**', '') if lines[1].startswith('**') else lines
                 parts = [p.strip() for p in title_line.split('|')]
                 job_title = parts[0] if parts else ""
                 dates = parts[1] if len(parts) > 1 else ""
@@ -142,29 +179,38 @@ class LaTeXConverter:
 
             latex_output += "\\vspace{0.15in}\n\n"
 
+        print("END EXPERIENCE")
         return latex_output
 
     def _format_skills_section(self, skills_text: str) -> str:
         """Format the skills section for LaTeX"""
+        print("START SKILLS")
         if not skills_text:
             return ""
         skills_text = re.sub(r'^\s+', '', skills_text, flags=re.MULTILINE)
         # Skills are in format: **Category:** skill1, skill2, skill3
         categories = re.findall(r'\*\*([^:]+):\*\*([^\n]+)', skills_text)
-
+        print("CATEGORIES")
+        print(categories)
         latex_output = ""
 
         for category, skills in categories:
+            print("CATEGORY")
+            print(category)
             category_clean = self._clean_text(category.strip())
+            print(skills)
+            print(type(skills))
             skills_clean = self._clean_text(skills.strip())
 
             latex_output += f"\\noindent\\textbf{{{category_clean}:}} {skills_clean}\n\n"
+
+        print("END SKILLS")
 
         return latex_output
 
     def _build_latex_document(self, headline: str, summary: str, experience: str, skills: str) -> str:
         """Build the complete LaTeX document"""
-        
+
         doc = r"""\documentclass[11pt,letterpaper]{article}
 
 % Packages
@@ -208,9 +254,9 @@ your\_email@example.com $\mid$ +1-XXX-XXX-XXXX $\mid$ Your Location $\mid$ Linke
 % Headline
 \begin{center}
 \textit{"""
-        
+
         doc += self._clean_text(headline)
-        
+
         doc += r"""}
 \end{center}
 
@@ -219,22 +265,22 @@ your\_email@example.com $\mid$ +1-XXX-XXX-XXXX $\mid$ Your Location $\mid$ Linke
 % Professional Summary
 \section*{Professional Summary}
 """
-        
+
         doc += self._clean_text(summary) + "\n\n"
-        
+
         doc += r"""% Professional Experience
 \section*{Professional Experience}
 """
-        
+
         doc += self._format_experience_section(experience)
-        
+
         doc += r"""% Skills
 \section*{Skills}
 """
-        
+
         doc += self._format_skills_section(skills)
-        
+
         doc += r"""
 \end{document}"""
-        
+
         return doc

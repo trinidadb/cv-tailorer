@@ -6,3 +6,4 @@ MAX_TOKENS = 10000
 
 class ValidFileExtensions(Enum):
     TEXT = ".txt"
+    LATEX = ".tex"

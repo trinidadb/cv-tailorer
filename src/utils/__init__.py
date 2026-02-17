@@ -1,1 +1,3 @@
 from src.utils.txt_loader import load_text_file
+from src.utils.structured_latex_converter import StructuredLaTeXConverter
+from src.utils.unstructured_latex_converter import UnstructuredLaTeXConverter
