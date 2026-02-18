@@ -89,11 +89,10 @@ class StructuredLaTeXConverter:
         """
         info = personal_info or {}
         name     = self.clean(info.get("name",     "Your Name"))
-        email    = self.clean(info.get("email",    "your\\_email@example.com"))
-        phone    = self.clean(info.get("phone",    "+1-XXX-XXX-XXXX"))
+        email    = self.clean(info.get("email",    "youremail@example.com"))
         location = self.clean(info.get("location", "Your Location"))
-        linkedin = self.clean(info.get("linkedin", "your\\_linkedin"))
-        github   = self.clean(info.get("github",   "your\\_github"))
+        linkedin = self.clean(info.get("linkedin", "yourlinkedin"))
+        github   = self.clean(info.get("github",   "yourgithub"))
 
         headline    = self.clean(resume.headline)
         summary     = self.clean(resume.professional_summary)
@@ -135,7 +134,12 @@ class StructuredLaTeXConverter:
 \end{{center}}
 
 \begin{{center}}
-{email} $\mid$ {phone} $\mid$ {location} $\mid$ LinkedIn: {linkedin} $\mid$ GitHub: {github}
+\contact{{
+  \href{{mailto:{email}}}{{{email}}} $\mid$
+  {location} $\mid$ 
+  \href{{https://linkedin.com/in/{linkedin}}}{{linkedin.com/in/{linkedin}}} $\mid$ 
+  \href{{https://github.com/{github}}}{{github.com/{github}}}
+}}
 \end{{center}}
 
 \vspace{{0.1in}}

@@ -5,105 +5,155 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resume Tailor AI</title>
     <style>
-        :root { --primary: #2563eb; --primary-hover: #1d4ed8; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; background: #f9fafb; color: #1f2937; }
-        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .field { margin-bottom: 1.5rem; }
-        label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
-        textarea, input[type="file"] { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; }
-        textarea { height: 120px; resize: vertical; }
+        :root { --primary: #2563eb; --bg: #f3f4f6; --editor-bg: #1e1e1e; --border: #e5e7eb; }
         
-        /* Button & Spinner Styles */
-        button { 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 0.75rem; background: var(--primary); color: white; 
-            border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            margin: 0; display: flex; height: 100vh; background: var(--bg); overflow: hidden;
         }
-        button:hover { background: var(--primary-hover); }
-        button:disabled { background: #93c5fd; cursor: not-allowed; }
+
+        /* Layout - Sidebar grows, Preview is capped */
+        .main-content { 
+            flex: 1; /* Takes up 60% by default */
+            padding: 2rem; background: white; 
+            border-right: 1px solid var(--border); overflow-y: auto; 
+        }
+        
+        .preview-container { 
+            width: 50%; /* Strict 50% width */
+            max-width: 50%;
+            display: flex; flex-direction: column; 
+            background: var(--editor-bg); color: #d4d4d4;
+        }
+
+        #codePreview { 
+            margin: 0; padding: 1.5rem; font-family: 'Fira Code', monospace; 
+            font-size: 13px; line-height: 1.6; overflow: auto; white-space: pre-wrap;
+            flex-grow: 1;
+        }
+
+        /* Form Elements */
+        .field { margin-bottom: 1.2rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
+        textarea, input { width: 100%; padding: 0.8rem; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
+        textarea { height: 200px; }
+
+        .btn-group { display: flex; gap: 10px; }
+        button { 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 0.8rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; border: none;
+        }
+        #generateBtn { background: var(--primary); color: white; flex-grow: 1; }
+        #generateBtn:disabled { opacity: 0.6; }
+
+        /* Preview Header & Utility Buttons */
+        .preview-header { 
+            padding: 0.75rem 1rem; background: #2d2d2d; border-bottom: 1px solid #444;
+            display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;
+        }
+        .util-btn { background: #444; color: #ddd; padding: 5px 10px; font-size: 0.7rem; display: none; }
+        .util-btn:hover { background: #555; }
 
         .spinner {
-            width: 18px; height: 18px; border: 2px solid #ffffff;
+            width: 14px; height: 14px; border: 2px solid white;
             border-bottom-color: transparent; border-radius: 50%;
             display: none; animation: rotation 1s linear infinite;
         }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        #status { margin-top: 1rem; font-size: 0.875rem; text-align: center; }
-        .error { color: #dc2626; }
-        .success { color: #16a34a; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>Tailor Your Resume</h2>
+
+    <div class="main-content">
+        <h2 style="margin-top:0">Tailor AI</h2>
         <div class="field">
-            <label for="jobDesc">Job Description</label>
-            <textarea id="jobDesc" placeholder="Paste the job requirements..."></textarea>
+            <label>Target Job Description</label>
+            <textarea id="jobDesc" placeholder="Paste the job requirements here..."></textarea>
         </div>
         <div class="field">
-            <label for="resumeFile">Master Resume (.txt)</label>
+            <label>Master Resume (.txt)</label>
             <input type="file" id="resumeFile" accept=".txt">
         </div>
         <button id="generateBtn">
-            <span id="btnText">Generate LaTeX Resume</span>
+            <span id="btnText">Generate LaTeX</span>
             <div id="spinner" class="spinner"></div>
         </button>
-        <div id="status"></div>
+        <p id="status" style="font-size: 0.85rem; color: #666;"></p>
+    </div>
+
+    <div class="preview-container">
+        <div class="preview-header">
+            <span style="letter-spacing: 1px; color: #888;">LATEX OUTPUT</span>
+            <div style="display: flex; gap: 8px;">
+                <button id="copyBtn" class="util-btn">Copy</button>
+                <button id="downloadBtn" class="util-btn">Download .tex</button>
+            </div>
+        </div>
+        <pre id="codePreview">% No code generated yet...</pre>
     </div>
 
     <script>
         const btn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const codePreview = document.getElementById('codePreview');
         const spinner = document.getElementById('spinner');
-        const btnText = document.getElementById('btnText');
-        const status = document.getElementById('status');
+
+        let currentLatex = "";
 
         btn.addEventListener('click', async () => {
-            const jobDesc = document.getElementById('jobDesc').value;
             const fileInput = document.getElementById('resumeFile');
-
-            if (!jobDesc || !fileInput.files[0]) {
-                alert("Please fill in all fields.");
-                return;
-            }
+            if (!fileInput.files[0]) return alert("Please upload a file");
 
             const formData = new FormData();
-            formData.append('job_description', jobDesc);
+            formData.append('job_description', document.getElementById('jobDesc').value);
             formData.append('resume_file', fileInput.files[0]);
 
-            // UI Loading State
             btn.disabled = true;
-            spinner.style.display = "inline-block";
-            btnText.innerText = "Tailoring...";
-            status.className = "";
-            status.innerText = "The AI is rewriting your resume. This usually takes 10-20 seconds.";
+            spinner.style.display = "block";
+            codePreview.innerText = "% Tailoring in progress...";
 
             try {
                 const response = await fetch('http://127.0.0.1:8002/tailor/generate', {
                     method: 'POST',
                     body: formData
                 });
-
-                if (!response.ok) throw new Error(await response.text());
-
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = "tailored_resume.tex";
-                document.body.appendChild(a);
-                a.click();
                 
-                status.className = "success";
-                status.innerText = "Done! Check your downloads.";
+                currentLatex = await response.text();
+                codePreview.innerText = currentLatex;
+                
+                // Show utility buttons
+                downloadBtn.style.display = "block";
+                copyBtn.style.display = "block";
             } catch (err) {
-                status.className = "error";
-                status.innerText = "Error: " + err.message;
+                codePreview.innerText = "Error: " + err.message;
             } finally {
                 btn.disabled = false;
                 spinner.style.display = "none";
-                btnText.innerText = "Generate LaTeX Resume";
             }
+        });
+
+        // Copy to clipboard logic
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(currentLatex).then(() => {
+                const originalText = copyBtn.innerText;
+                copyBtn.innerText = "Copied!";
+                copyBtn.style.background = "#16a34a";
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                    copyBtn.style.background = "#444";
+                }, 2000);
+            });
+        });
+
+        // Download logic
+        downloadBtn.addEventListener('click', () => {
+            const blob = new Blob([currentLatex], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "tailored_resume.tex";
+            a.click();
         });
     </script>
 </body>
