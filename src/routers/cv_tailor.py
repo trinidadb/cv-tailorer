@@ -5,7 +5,7 @@ import io
 from typing import Optional
 
 from src.config.schemas import PersonalInfo
-from src.tailor_resume import generate_tailored_cv_latex
+from src.dependencies import get_tailor
 from src.utils import sanitize_filename
 
 router = APIRouter(
@@ -34,7 +34,7 @@ async def tailor_resume(
 
         personal_info = PersonalInfo(name=name, email=email, location=location, linkedin=linkedin, github=github)
 
-        latex_content, company_name, position_title = generate_tailored_cv_latex(master_resume=master_resume, job_description=job_description, structured_output=True, save=False, personal_info=personal_info)
+        latex_content, company_name, position_title = get_tailor().generate_tailored_cv_latex(master_resume=master_resume, job_description=job_description, structured_output=True, save=False, personal_info=personal_info)
 
         # mock_latex = r"""
         #     \documentclass{article}
