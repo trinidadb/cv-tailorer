@@ -12,53 +12,39 @@
             margin: 0; display: flex; height: 100vh; background: var(--bg); overflow: hidden;
         }
 
-        /* Layout - Sidebar grows, Preview is capped */
         .main-content { 
-            flex: 1; /* Takes up 60% by default */
-            padding: 2rem; background: white; 
+            flex: 1; padding: 2rem; background: white; 
             border-right: 1px solid var(--border); overflow-y: auto; 
         }
         
         .preview-container { 
-            width: 50%; /* Strict 50% width */
-            max-width: 50%;
-            display: flex; flex-direction: column; 
+            width: 40%; max-width: 40%; display: flex; flex-direction: column; 
             background: var(--editor-bg); color: #d4d4d4;
         }
 
         #codePreview { 
             margin: 0; padding: 1.5rem; font-family: 'Fira Code', monospace; 
-            font-size: 13px; line-height: 1.6; overflow: auto; white-space: pre-wrap;
-            flex-grow: 1;
+            font-size: 13px; line-height: 1.6; overflow: auto; white-space: pre-wrap; flex-grow: 1;
         }
 
-        /* Form Elements */
-        .field { margin-bottom: 1.2rem; }
-        label { display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.9rem; }
-        textarea, input { width: 100%; padding: 0.8rem; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
-        textarea { height: 200px; }
+        /* Input Styling */
+        .section-title { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 1.5rem 0 0.75rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+        .field { margin-bottom: 1rem; }
+        .grid-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.85rem; }
+        textarea, input { width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-size: 0.9rem; }
+        textarea { height: 120px; }
 
-        .btn-group { display: flex; gap: 10px; }
-        button { 
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 0.8rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; border: none;
-        }
-        #generateBtn { background: var(--primary); color: white; flex-grow: 1; }
+        /* Buttons */
+        button { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; }
+        #generateBtn { width: 100%; padding: 0.8rem; background: var(--primary); color: white; margin-top: 1rem; }
         #generateBtn:disabled { opacity: 0.6; }
 
-        /* Preview Header & Utility Buttons */
-        .preview-header { 
-            padding: 0.75rem 1rem; background: #2d2d2d; border-bottom: 1px solid #444;
-            display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;
-        }
+        .preview-header { padding: 0.75rem 1rem; background: #2d2d2d; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; }
         .util-btn { background: #444; color: #ddd; padding: 5px 10px; font-size: 0.7rem; display: none; }
-        .util-btn:hover { background: #555; }
 
-        .spinner {
-            width: 14px; height: 14px; border: 2px solid white;
-            border-bottom-color: transparent; border-radius: 50%;
-            display: none; animation: rotation 1s linear infinite;
-        }
+        .spinner { width: 14px; height: 14px; border: 2px solid white; border-bottom-color: transparent; border-radius: 50%; display: none; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -66,27 +52,57 @@
 
     <div class="main-content">
         <h2 style="margin-top:0">Tailor AI</h2>
+        
+        <div class="section-title">Job Details</div>
         <div class="field">
             <label>Target Job Description</label>
-            <textarea id="jobDesc" placeholder="Paste the job requirements here..."></textarea>
+            <textarea id="jobDesc" placeholder="Paste the job requirements..."></textarea>
         </div>
         <div class="field">
             <label>Master Resume (.txt)</label>
             <input type="file" id="resumeFile" accept=".txt">
         </div>
+
+        <div class="section-title">Personal Info (Optional)</div>
+        <div class="field">
+            <label>Full Name</label>
+            <input type="text" id="name" placeholder="Jane Doe">
+        </div>
+        
+        <div class="grid-fields">
+            <div class="field">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="jane@example.com">
+            </div>
+            <div class="field">
+                <label>Location</label>
+                <input type="text" id="location" placeholder="City, Country">
+            </div>
+        </div>
+
+        <div class="grid-fields">
+            <div class="field">
+                <label>LinkedIn URL</label>
+                <input type="text" id="linkedin" placeholder="linkedin.com/in/{suffix of the url}">
+            </div>
+            <div class="field">
+                <label>GitHub URL</label>
+                <input type="text" id="github" placeholder="github.com/{username}">
+            </div>
+        </div>
+
         <button id="generateBtn">
             <span id="btnText">Generate LaTeX</span>
             <div id="spinner" class="spinner"></div>
         </button>
-        <p id="status" style="font-size: 0.85rem; color: #666;"></p>
     </div>
 
     <div class="preview-container">
         <div class="preview-header">
-            <span style="letter-spacing: 1px; color: #888;">LATEX OUTPUT</span>
+            <span style="letter-spacing: 1px; color: #888; font-size: 0.7rem;">LATEX OUTPUT</span>
             <div style="display: flex; gap: 8px;">
                 <button id="copyBtn" class="util-btn">Copy</button>
-                <button id="downloadBtn" class="util-btn">Download .tex</button>
+                <button id="downloadBtn" class="util-btn">Download</button>
             </div>
         </div>
         <pre id="codePreview">% No code generated yet...</pre>
@@ -94,10 +110,10 @@
 
     <script>
         const btn = document.getElementById('generateBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
         const copyBtn = document.getElementById('copyBtn');
-        const codePreview = document.getElementById('codePreview');
+        const downloadBtn = document.getElementById('downloadBtn');
         const spinner = document.getElementById('spinner');
+        const codePreview = document.getElementById('codePreview');
 
         let currentLatex = "";
 
@@ -108,10 +124,17 @@
             const formData = new FormData();
             formData.append('job_description', document.getElementById('jobDesc').value);
             formData.append('resume_file', fileInput.files[0]);
+            
+            // Appending new optional fields
+            const fields = ['name', 'email', 'location', 'linkedin', 'github'];
+            fields.forEach(f => {
+                const val = document.getElementById(f).value;
+                if(val) formData.append(f, val);
+            });
 
             btn.disabled = true;
             spinner.style.display = "block";
-            codePreview.innerText = "% Tailoring in progress...";
+            codePreview.innerText = "% Processing tailored resume...";
 
             try {
                 const response = await fetch('/tailor/generate', {
@@ -121,10 +144,8 @@
                 
                 currentLatex = await response.text();
                 codePreview.innerText = currentLatex;
-                
-                // Show utility buttons
-                downloadBtn.style.display = "block";
                 copyBtn.style.display = "block";
+                downloadBtn.style.display = "block";
             } catch (err) {
                 codePreview.innerText = "Error: " + err.message;
             } finally {
@@ -133,20 +154,12 @@
             }
         });
 
-        // Copy to clipboard logic
         copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(currentLatex).then(() => {
-                const originalText = copyBtn.innerText;
-                copyBtn.innerText = "Copied!";
-                copyBtn.style.background = "#16a34a";
-                setTimeout(() => {
-                    copyBtn.innerText = originalText;
-                    copyBtn.style.background = "#444";
-                }, 2000);
-            });
+            navigator.clipboard.writeText(currentLatex);
+            copyBtn.innerText = "Copied!";
+            setTimeout(() => copyBtn.innerText = "Copy", 2000);
         });
 
-        // Download logic
         downloadBtn.addEventListener('click', () => {
             const blob = new Blob([currentLatex], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
