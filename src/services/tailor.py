@@ -4,22 +4,20 @@ CV Tailor Engine - Core functionality for resume tailoring
 
 from src.config.constants import ValidFileExtensions
 from src.config.prompts import USER_PROMPT_TEMPLATE
-from src.llm import GeminiClient
+from src.llm import GeminiTailor
 
 import sys
 from src.config.schemas import TailoredResume
-from src.llm import BaseLLMClient
+from src.llm import BaseLLMTailor
 from src.utils import StructuredLaTeXConverter, UnstructuredLaTeXConverter, save_tailored_resume
 
 
 class CVTailor:
-    """Main CV tailoring engine"""
 
-    def __init__(self, llm_client: BaseLLMClient = None):
-        self.llm_client = llm_client or GeminiClient()
+    def __init__(self, tailorer: BaseLLMTailor = None):
+        self.tailorer = tailorer or GeminiTailor()
         print(f"\n{'='*60}")
-        print(f"CV TAILOR INITIALIZED")
-        print(f"Provider: GEMINI")
+        print("CV TAILOR INITIALIZED")
         print(f"{'='*60}\n")
 
     def tailor_resume(
@@ -45,9 +43,9 @@ class CVTailor:
 
         try:
             if structured_output:
-                tailored_resume = self.llm_client.generate_then_extract_and_structure(user_prompt=user_prompt) if generate_then_extract else self.llm_client.generate_with_structured_output(user_prompt=user_prompt)
+                tailored_resume = self.tailorer.generate_then_extract_and_structure(user_prompt=user_prompt) if generate_then_extract else self.tailorer.generate_with_structured_output(user_prompt=user_prompt)
             else:
-                tailored_resume = self.llm_client.generate(user_prompt=user_prompt)
+                tailored_resume = self.tailorer.generate(user_prompt=user_prompt)
 
             print("✓ Resume tailored successfully!\n")
 
@@ -95,4 +93,3 @@ class CVTailor:
         except Exception as e:
             print(f"\n✗ Error during tailoring: {e}")
             sys.exit(1)
-

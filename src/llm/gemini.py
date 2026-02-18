@@ -5,16 +5,17 @@ LLM Client Manager - Handles Anthropic and Gemini API interactions
 from google import genai
 from google.genai import types as genaiTypes
 
-from src.config.constants import MAX_TOKENS, GEMINI_TEMPERATURE
-from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE
-from src.config.schemas import TailoredResume
-from src.llm.base import BaseLLMClient
+from src.config.constants import MAX_TOKENS_TAILOR, GEMINI_TEMPERATURE, MAX_TOKENS_ATS
+from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE
+from src.config.schemas import TailoredResume, ATSScoreReport
+from src.llm.base import BaseLLMClient, BaseLLMTailor, BaseLLMATS
 
 
 class GeminiClient(BaseLLMClient):
 
-    def __init__(self, model: str = 'gemini-2.5-flash', *args, **kwargs):
+    def __init__(self, model: str = 'gemini-2.5-flash-lite', *args, **kwargs):
         self.model = model
+        print("Provider: GEMINI")
         super().__init__(*args, **kwargs)
 
     def _init_client(self, *args, **kwargs):
@@ -25,12 +26,15 @@ class GeminiClient(BaseLLMClient):
         except Exception as e:
             print(f"⚠ Gemini initialization failed: {e}")
 
+
+class GeminiTailor(GeminiClient, BaseLLMTailor):
+
     def _generate_full_prompt(self, system_prompt: str = None, user_prompt: str = None):
         system_prompt = system_prompt or SYSTEM_PROMPT
         user_prompt = user_prompt or USER_PROMPT_TEMPLATE
         return f"{system_prompt}\n\n{user_prompt}"
 
-    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS) -> str:
+    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> str:
 
         print("GENERATE WITH UNSTRUCTURED OUTPUT")
 
@@ -47,7 +51,7 @@ class GeminiClient(BaseLLMClient):
 
         return response.text
 
-    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS) -> TailoredResume:
+    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> TailoredResume:
 
         print("GENERATE WITH STRUCTURED OUTPUT")
 
@@ -66,8 +70,7 @@ class GeminiClient(BaseLLMClient):
 
         return response.parsed
 
-
-    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS):
+    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ):
         '''This way the creative generation is unconstrained, and the extraction step is a much simpler task that rarely degrades quality.'''
 
         print("GENERATE THEN EXTRACT AND STRUCTURE OUTPUT")
@@ -89,5 +92,26 @@ class GeminiClient(BaseLLMClient):
                 response_mime_type="application/json",
                 response_schema=TailoredResume
             )
+        )
+        return response.parsed
+
+
+class GeminiATS(GeminiClient, BaseLLMATS):
+
+    def score(self, resume_text: str, job_description: str) -> ATSScoreReport:
+        user_prompt = ATS_USER_TEMPLATE.format(
+            job_description=job_description,
+            resume_text=resume_text,
+        )
+
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=f"{ATS_SYSTEM_PROMPT}\n\n{user_prompt}",
+            config=genaiTypes.GenerateContentConfig(
+                temperature=0,          # deterministic — scoring should be consistent
+                max_output_tokens=MAX_TOKENS_ATS,
+                response_mime_type="application/json",
+                response_schema=ATSScoreReport,
+            ),
         )
         return response.parsed

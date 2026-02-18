@@ -2,6 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 
+# ------------------------------------------------------------------
+# TAILORER
+# ------------------------------------------------------------------
+
 class ExperienceEntry(BaseModel):
     job_title: str
     company: str
@@ -31,3 +35,30 @@ class PersonalInfo(BaseModel):
     linkedin: Optional[str] = None
     github: Optional[str] = None
     location: Optional[str] = None
+
+
+# ------------------------------------------------------------------
+# ATS
+# ------------------------------------------------------------------
+
+class KeywordMatch(BaseModel):
+    keyword: str
+    tier: str           # "critical" | "important" | "nice_to_have"
+    found: bool
+    context: str        # where it was found, or suggestion if missing
+
+
+class SectionScore(BaseModel):
+    section: str        # "headline" | "summary" | "experience" | "skills"
+    score: int          # 0-100
+    feedback: str
+
+
+class ATSScoreReport(BaseModel):
+    overall_score: int                  # 0-100
+    keyword_density: float              # percentage estimate
+    keyword_matches: list[KeywordMatch]
+    section_scores: list[SectionScore]
+    missing_critical_keywords: list[str]
+    improvement_suggestions: list[str]  # ordered by impact
+    ats_verdict: str                    # "Strong Pass" | "Likely Pass" | "Borderline" | "Likely Fail"
