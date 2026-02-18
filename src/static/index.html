@@ -114,7 +114,7 @@
             codePreview.innerText = "% Tailoring in progress...";
 
             try {
-                const response = await fetch('http://127.0.0.1:8002/tailor/generate', {
+                const response = await fetch('/tailor/generate', {
                     method: 'POST',
                     body: formData
                 });

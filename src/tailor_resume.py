@@ -12,7 +12,7 @@ from src.utils import load_text_file
 from src.utils import StructuredLaTeXConverter, UnstructuredLaTeXConverter
 
 
-def generate_tailored_cv_latex(master_resume, job_description, save=True, generate_then_extract=False, structured_output=True, company_name=None, position_title=None):
+def generate_tailored_cv_latex(master_resume, job_description, save=True, generate_then_extract=False, structured_output=True, company_name=None, position_title=None, personal_info=None):
     tailor = CVTailor()
     try:
         tailored_resume = tailor.tailor_resume(
@@ -22,12 +22,10 @@ def generate_tailored_cv_latex(master_resume, job_description, save=True, genera
             generate_then_extract=generate_then_extract
         )
 
-        # tailored_resume = load_text_file("output/tailored_20260207_202322_ZS_Data-Analyst.txt")
 
         if isinstance(tailored_resume, TailoredResume):
             timestamp = None
-            latex_output = StructuredLaTeXConverter().convert(tailored_resume)
-            print(latex_output)
+            latex_output = StructuredLaTeXConverter().convert(tailored_resume, personal_info=personal_info)
             company_name = tailored_resume.company
             position_title = tailored_resume.position_title
 

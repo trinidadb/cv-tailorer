@@ -1,0 +1,19 @@
+services:
+  cvtailorer:
+    build:
+      context: .
+      args:
+        - HTTP_PORT=${HTTP_PORT_CV_TAILORER}
+    container_name: ${CV_TAILORER_CONTAINER_NAME}
+    ports:
+      - ${HTTP_PORT_CV_TAILORER}:${HTTP_PORT_CV_TAILORER}
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - HTTP_PORT=${HTTP_PORT_CV_TAILORER}
+      - HTTP_HOST=${CV_TAILORER_CONTAINER_NAME}
+    networks:
+      - cv-net
+
+networks:
+  cv-net:
+    driver: bridge
