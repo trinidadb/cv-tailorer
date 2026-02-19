@@ -11,6 +11,7 @@ The core idea is to keep your new CV real but allow for logical creativity in cu
 - **Language:** Python 3.x
 - **LLM:** Google Gemini (Generative AI)
 - **Environment Management:** `python-dotenv`
+- **Docker & Docker Compose**
 
 
 ## 🚀 Getting Started
