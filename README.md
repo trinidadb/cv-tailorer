@@ -11,7 +11,7 @@ The core idea is to keep your new CV real but allow for logical creativity in cu
 - **Language:** Python 3.x
 - **LLM:** Google Gemini (Generative AI)
 - **Environment Management:** `python-dotenv`
-- **Output:** Clean Text (Optimized for LaTeX conversion)
+
 
 ## 🚀 Getting Started
 
@@ -40,9 +40,21 @@ Create a `.env` file in the root directory and add your API key:
 
 ```
 GEMINI_API_KEY=your_api_key_here
+
+HTTP_PORT_CV_TAILORER = 8000
+CV_TAILORER_CONTAINER_NAME = cvtailorer
 ```
 
 ## 📖 How to Use
+### Option 1
+Run it using docker and FastAPI.
+```
+docker compose up --build
+```
+
+(WIP-it works but docker compose is an overkill for only one container, I added it in case I need Redis in the future)
+
+### Option 2
 The tool requires four main inputs to generate a tailored CV. Run the script using the following command:
 
 ```
@@ -51,7 +63,7 @@ python -m src.tailor_resume "data/your_master_resume.txt" "data/target_job_descr
 
 ## ⚠️ Important Considerations
 - **Scope:** This tool focuses exclusively on the high-impact, dynamic sections of a CV: **HEADLINE**, **PROFESSIONAL SUMMARY**, **PROFESSIONAL EXPERIENCE**, and **SKILLS**.
-- **Static Sections:** It does **not** process Education, Certificates, or Personal Info. It is recommended to keep these sections static in your final LaTeX/Word template and only update the AI-generated sections.
+- **Static Sections:** It does **not** process Education or Certificates. It is recommended to keep these sections static in your final LaTeX/Word template and only update the AI-generated sections.
 - **Skills Input:** For best results, list your skills in your master resume as a "rough list" rather than grouping them. The LLM will intelligently categorize and select the most relevant ones for the specific JD.
 - **Profile Input:** For best results, don't include a profile in the input CV. The tool will build it for you :D.
 - **Prompt Logic:** This project uses `prompt_v3`, which is specifically tuned to:
