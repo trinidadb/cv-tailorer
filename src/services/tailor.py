@@ -9,7 +9,7 @@ from src.llm import GeminiTailor
 import sys
 from src.config.schemas import TailoredResume
 from src.llm import BaseLLMTailor
-from src.utils import StructuredLaTeXConverter, UnstructuredLaTeXConverter, save_tailored_resume
+from src.utils import StructuredLaTeXConverter, UnstructuredLaTeXConverter, StructuredDocxConverter, save_tailored_resume
 
 
 class CVTailor:
@@ -55,7 +55,7 @@ class CVTailor:
             print(f"✗ Error during resume tailoring: {e}")
             raise
 
-    def generate_tailored_cv_latex(self, master_resume, job_description, save=True, generate_then_extract=False, structured_output=True, company_name=None, position_title=None, personal_info=None):
+    def generate_formated_cv(self, master_resume, job_description, save=True, generate_then_extract=False, structured_output=True, company_name=None, position_title=None, personal_info=None):
         try:
             tailored_resume = self.tailor_resume(
                 master_resume=master_resume,
@@ -65,18 +65,40 @@ class CVTailor:
             )
 
             if isinstance(tailored_resume, TailoredResume):
-                timestamp = None
-                latex_output = StructuredLaTeXConverter().convert(tailored_resume, personal_info=personal_info)
                 company_name = tailored_resume.company
                 position_title = tailored_resume.position_title
-
-            else:
-                # RESUME AS TEXT FOR COMPARISSON AS MANY TIMES UNSTRUCTURED LATEX CONVERTER FAILS
-                _, timestamp = save_tailored_resume(tailored_resume, file_extension=ValidFileExtensions.TEXT, company_name=company_name, position_title=position_title)
-                latex_output = UnstructuredLaTeXConverter().text_to_latex(tailored_resume)
+                latex_output = StructuredLaTeXConverter().convert(tailored_resume, personal_info=personal_info)
+                docx_output = StructuredDocxConverter().convert(tailored_resume, personal_info=personal_info)
 
             if save:
-                _, _ = save_tailored_resume(latex_output, file_extension=ValidFileExtensions.LATEX, company_name=company_name, position_title=position_title, timestamp=timestamp)
+                _, timestamp = save_tailored_resume(latex_output, file_extension=ValidFileExtensions.LATEX, company_name=company_name, position_title=position_title)
+                _, _ = save_tailored_resume(docx_output, file_extension=ValidFileExtensions.DOCX, company_name=company_name, position_title=position_title, timestamp=timestamp)
+
+
+            print("\n" + "="*60)
+            print("✓ SUCCESS!")
+            print("="*60)
+            print("="*60 + "\n")
+
+            return latex_output, docx_output, company_name, position_title
+
+        except Exception as e:
+            print(f"\n✗ Error during tailoring: {e}")
+            sys.exit(1)
+
+    def get_cv_with_unstructured_output_latex(self, master_resume, job_description, company_name=None, position_title=None):
+        try:
+            tailored_resume = self.tailor_resume(
+                master_resume=master_resume,
+                job_description=job_description,
+                structured_output=False
+            )
+
+            # RESUME AS TEXT FOR COMPARISSON AS MANY TIMES UNSTRUCTURED LATEX CONVERTER FAILS
+            _, timestamp = save_tailored_resume(tailored_resume, file_extension=ValidFileExtensions.TEXT, company_name=company_name, position_title=position_title)
+
+            latex_output = UnstructuredLaTeXConverter().text_to_latex(tailored_resume)
+            _, _ = save_tailored_resume(latex_output, file_extension=ValidFileExtensions.LATEX, company_name=company_name, position_title=position_title, timestamp=timestamp)
 
             print("\n" + "="*60)
             print("✓ SUCCESS!")

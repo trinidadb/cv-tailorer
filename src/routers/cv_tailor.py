@@ -1,12 +1,13 @@
-from fastapi import UploadFile, File, Form, HTTPException, Depends
+from fastapi import UploadFile, File, Form, HTTPException, Query
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 import io
 from typing import Optional
 
 from src.config.schemas import PersonalInfo
 from src.dependencies import get_tailor
-from src.utils import sanitize_filename
+from src.services.cache import store, get
+from src.utils import StructuredLaTeXConverter, StructuredDocxConverter, sanitize_filename
 
 router = APIRouter(
     prefix="/tailor",
@@ -18,12 +19,7 @@ router = APIRouter(
 @router.post("/generate")
 async def tailor_resume(
     job_description: str = Form(...),
-    resume_file: UploadFile = File(...),
-    name: Optional[str] = Form(None),
-    email: Optional[str] = Form(None),
-    location: Optional[str] = Form(None),
-    linkedin: Optional[str] = Form(None),
-    github: Optional[str] = Form(None)
+    resume_file: UploadFile = File(...)
 ):
     if not resume_file.filename.endswith('.txt'):
         raise HTTPException(status_code=400, detail="Only .txt resume files are supported.")
@@ -32,28 +28,74 @@ async def tailor_resume(
         resume_content = await resume_file.read()
         master_resume = resume_content.decode("utf-8")
 
-        personal_info = PersonalInfo(name=name, email=email, location=location, linkedin=linkedin, github=github)
+        tailored_resume = get_tailor().tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True)
+        tailored_resume_id = store(tailored_resume)
 
-        latex_content, company_name, position_title = get_tailor().generate_tailored_cv_latex(master_resume=master_resume, job_description=job_description, structured_output=True, save=False, personal_info=personal_info)
+        return JSONResponse({"resume_id": tailored_resume_id })
 
-        # mock_latex = r"""
-        #     \documentclass{article}
-        #     \begin{document}
-        #     \section*{Tailored Resume}
-        #     This is a MOCK response for frontend testing.
-        #     \end{document}
-        #     """
-        
-        # latex_content = mock_latex
-        # company_name = "ZS"
-        # position_title = "Decision"
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during tailoring: {str(e)}")
 
-        filename = sanitize_filename(f"{company_name}_{position_title}")
+
+def _prepare_for_format(resume_id, name, email, location, linkedin, github):
+    tailored_resume = get(resume_id)
+
+    if not tailored_resume:
+        raise HTTPException(
+            status_code=404,
+            detail="Resume not found or session expired. Please generate again."
+        )
+
+    personal_info = PersonalInfo(name=name, email=email, location=location, linkedin=linkedin, github=github)
+    filename = sanitize_filename(f"{tailored_resume.company}_{tailored_resume.position_title}")
+
+    return tailored_resume, personal_info, filename
+
+
+@router.get("/{resume_id}/latex")
+async def get_latex(
+    resume_id: str,
+    name: Optional[str] = Query(None),
+    email: Optional[str] = Query(None),
+    location: Optional[str] = Query(None),
+    linkedin: Optional[str] = Query(None),
+    github: Optional[str] = Query(None)
+):
+    try:
+        tailored_resume, personal_info, filename = _prepare_for_format(resume_id, name, email, location, linkedin, github)
+        latex_content = StructuredLaTeXConverter().convert(tailored_resume, personal_info=personal_info)
 
         return StreamingResponse(
             io.BytesIO(latex_content.encode("utf-8")),
             media_type="application/x-tex",
             headers={"Content-Disposition": f"attachment; filename={filename}.tex"}
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during tailoring: {str(e)}")
+
+
+@router.get("/{resume_id}/docx")
+async def get_docx(
+    resume_id: str,
+    name: Optional[str] = Query(None),
+    email: Optional[str] = Query(None),
+    location: Optional[str] = Query(None),
+    linkedin: Optional[str] = Query(None),
+    github: Optional[str] = Query(None)
+):
+    try:
+        tailored_resume, personal_info, filename = _prepare_for_format(resume_id, name, email, location, linkedin, github)
+        docx_document = StructuredDocxConverter().convert(tailored_resume, personal_info=personal_info)
+
+        docx_buffer = io.BytesIO()
+        docx_document.save(docx_buffer)
+        docx_buffer.seek(0)
+
+        return StreamingResponse(
+            docx_buffer,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename={filename}.docx"}
         )
 
     except Exception as e:

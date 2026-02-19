@@ -18,7 +18,7 @@
         }
         
         .preview-container { 
-            width: 40%; max-width: 40%; display: flex; flex-direction: column; 
+            width: 50%; max-width: 50%; display: flex; flex-direction: column; 
             background: var(--editor-bg); color: #d4d4d4;
         }
 
@@ -102,71 +102,77 @@
             <span style="letter-spacing: 1px; color: #888; font-size: 0.7rem;">LATEX OUTPUT</span>
             <div style="display: flex; gap: 8px;">
                 <button id="copyBtn" class="util-btn">Copy</button>
-                <button id="downloadBtn" class="util-btn">Download</button>
+                <button id="texBtn" class="util-btn">.tex</button>
+                <button id="docxBtn" class="util-btn primary">.docx</button>
             </div>
         </div>
-        <pre id="codePreview">% No code generated yet...</pre>
+        <pre id="codePreview">% Code will appear here...</pre>
     </div>
 
     <script>
+        let currentResumeId = null;
         const btn = document.getElementById('generateBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
         const spinner = document.getElementById('spinner');
         const codePreview = document.getElementById('codePreview');
+        const actionBtns = document.querySelectorAll('.util-btn');
 
-        let currentLatex = "";
+        // Helper to get personal info query strings
+        function getQueryParams() {
+            return new URLSearchParams({
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                location: document.getElementById('location').value,
+                linkedin: document.getElementById('linkedin').value,
+                github: document.getElementById('github').value
+            }).toString();
+        }
 
         btn.addEventListener('click', async () => {
             const fileInput = document.getElementById('resumeFile');
-            if (!fileInput.files[0]) return alert("Please upload a file");
+            if (!fileInput.files[0]) return alert("Please upload a .txt resume");
 
             const formData = new FormData();
             formData.append('job_description', document.getElementById('jobDesc').value);
             formData.append('resume_file', fileInput.files[0]);
-            
-            // Appending new optional fields
-            const fields = ['name', 'email', 'location', 'linkedin', 'github'];
-            fields.forEach(f => {
-                const val = document.getElementById(f).value;
-                if(val) formData.append(f, val);
-            });
 
-            btn.disabled = true;
-            spinner.style.display = "block";
-            codePreview.innerText = "% Processing tailored resume...";
+            btn.disabled = true; spinner.style.display = "block";
+            codePreview.innerText = "% AI is working...";
 
             try {
-                const response = await fetch('/tailor/generate', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                currentLatex = await response.text();
-                codePreview.innerText = currentLatex;
-                copyBtn.style.display = "block";
-                downloadBtn.style.display = "block";
+                // 1. POST to generate the ID
+                const res = await fetch('http://127.0.0.1:8003/tailor/generate', { method: 'POST', body: formData });
+                const data = await res.json();
+                currentResumeId = data.resume_id;
+
+                // 2. Automatically fetch LaTeX to show in preview
+                const latexRes = await fetch(`http://127.0.0.1:8003/tailor/${currentResumeId}/latex?${getQueryParams()}`);
+                codePreview.innerText = await latexRes.text();
+
+                // 3. Show all buttons
+                actionBtns.forEach(b => b.style.display = "block");
             } catch (err) {
                 codePreview.innerText = "Error: " + err.message;
             } finally {
-                btn.disabled = false;
-                spinner.style.display = "none";
+                btn.disabled = false; spinner.style.display = "none";
             }
         });
 
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(currentLatex);
-            copyBtn.innerText = "Copied!";
-            setTimeout(() => copyBtn.innerText = "Copy", 2000);
+        // Copy LaTeX
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            navigator.clipboard.writeText(codePreview.innerText);
+            const original = document.getElementById('copyBtn').innerText;
+            document.getElementById('copyBtn').innerText = "Copied!";
+            setTimeout(() => document.getElementById('copyBtn').innerText = original, 2000);
         });
 
-        downloadBtn.addEventListener('click', () => {
-            const blob = new Blob([currentLatex], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "tailored_resume.tex";
-            a.click();
+        // Download .tex
+        document.getElementById('texBtn').addEventListener('click', () => {
+            window.location.href = `http://127.0.0.1:8003/tailor/${currentResumeId}/latex?${getQueryParams()}`;
+        });
+
+        // Download .docx
+        document.getElementById('docxBtn').addEventListener('click', () => {
+            window.location.href = `http://127.0.0.1:8003/tailor/${currentResumeId}/docx?${getQueryParams()}`;
         });
     </script>
 </body>

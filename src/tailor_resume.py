@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 CV Tailor - Standalone Script Version
 Quick command-line tool for resume tailoring

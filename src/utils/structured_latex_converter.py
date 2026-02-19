@@ -50,10 +50,10 @@ class StructuredLaTeXConverter:
 
             # Company + location on one line, dates flush-right
             lines.append(
-                rf"\noindent\textbf{{{company}}} \hfill \textit{{{location}}}\\"
+                rf"\noindent\textbf{{{job_title}}} \hfill \textit{{{location}}}\\"
             )
             lines.append(
-                rf"\textit{{{job_title}}} \hfill {start} -- {end}\\"
+                rf"\textit{{{company}}} \hfill {start} -- {end}\\"
             )
             lines.append(r"\vspace{2pt}")
 

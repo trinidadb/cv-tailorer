@@ -30,11 +30,11 @@ class TailoredResume(BaseModel):
 
 
 class PersonalInfo(BaseModel):
-    name: Optional[str] = None
-    email: Optional[str] = None
-    linkedin: Optional[str] = None
-    github: Optional[str] = None
-    location: Optional[str] = None
+    name: Optional[str] = "Your Name"
+    email: Optional[str] = "youremail@example.com"
+    linkedin: Optional[str] = "suffix"
+    github: Optional[str] = "username"
+    location: Optional[str] = "City, Country"
 
 
 # ------------------------------------------------------------------

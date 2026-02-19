@@ -8,3 +8,4 @@ MAX_TOKENS_ATS = 2000
 class ValidFileExtensions(Enum):
     TEXT = ".txt"
     LATEX = ".tex"
+    DOCX  = ".docx" 
