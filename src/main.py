@@ -2,9 +2,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import os
 import uvicorn
 
 from src.routers import cv_tailor
+
+http_port = os.getenv("HTTP_PORT")
 
 
 def initialize_resources():
@@ -30,21 +33,22 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:8002",
-    "http://127.0.0.1:8002",
+    f"http://localhost:{http_port}",
+    f"http://127.0.0.1:{http_port}",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (POST, GET, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(cv_tailor)
 
 app.mount("/", StaticFiles(directory="./src/static", html=True), name="static")
+
 
 @app.get('/', tags=['root'])
 async def read_root():
@@ -54,4 +58,4 @@ async def read_root():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host="0.0.0.0", port=int(http_port))

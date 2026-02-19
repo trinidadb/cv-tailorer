@@ -1,21 +1,36 @@
-"""
-LLM Client Manager - Handles Anthropic and Gemini API interactions
-"""
-
 from abc import ABC, abstractmethod
-
-from src.config.constants import MAX_TOKENS
+from src.config.constants import MAX_TOKENS_TAILOR
 
 
 class BaseLLMClient(ABC):
-
+    """Handles client initialization only"""
     def __init__(self, *args, **kwargs):
-        self.client = self._init_client(args, kwargs)
+        self.client = self._init_client()
 
     @abstractmethod
-    def _init_client(self, *args, **kwargs):
+    def _init_client(self):
+        pass
+
+
+class BaseLLMTailor(ABC):
+    """Interface for tailor-specific LLM methods"""
+
+    @abstractmethod
+    def generate(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
         pass
 
     @abstractmethod
-    def generate(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS) -> str:
+    def generate_with_structured_output(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR):
+        pass
+
+    @abstractmethod
+    def generate_then_extract_and_structure(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR):
+        pass
+
+
+class BaseLLMATS(ABC):
+    """Interface for ATS scorer-specific LLM methods"""
+
+    @abstractmethod
+    def score(self, resume_text: str, job_description: str):
         pass
