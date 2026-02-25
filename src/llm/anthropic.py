@@ -46,7 +46,7 @@ class AnthropicTailor(AnthropicClient, BaseLLMTailor):
 
     def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: int = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
 
-        print("GENERATE WITH UNSTRUCTURED OUTPUT")
+        print("[ANTHROPIC] GENERATE WITH UNSTRUCTURED OUTPUT ------- Temperature:{temperature}")
 
         response = self.client.messages.create(
             model=self.model,
@@ -61,7 +61,7 @@ class AnthropicTailor(AnthropicClient, BaseLLMTailor):
 
     def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: int = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> TailoredResume:
 
-        print("GENERATE WITH STRUCTURED OUTPUT")
+        print("[ANTHROPIC] GENERATE WITH STRUCTURED OUTPUT ------- Temperature:{temperature}")
 
         response = self.client.messages.parse(
             model=self.model,
@@ -78,7 +78,7 @@ class AnthropicTailor(AnthropicClient, BaseLLMTailor):
     def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: int = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> TailoredResume:
         """Creative generation is unconstrained, extraction step is a simpler deterministic task."""
 
-        print("GENERATE THEN EXTRACT AND STRUCTURE OUTPUT")
+        print("[ANTHROPIC] GENERATE THEN EXTRACT AND STRUCTURE OUTPUT ------- Temperature:{temperature}")
 
         raw_text = self.generate(system_prompt=system_prompt, user_prompt=user_prompt, temperature=temperature, max_tokens=max_tokens)
 
