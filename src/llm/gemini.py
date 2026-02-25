@@ -6,8 +6,8 @@ from google import genai
 from google.genai import types as genaiTypes
 
 from src.config.constants import MAX_TOKENS_TAILOR, GEMINI_TEMPERATURE, MAX_TOKENS_ATS
-from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE
-from src.config.schemas import TailoredResume, ATSScoreReport
+from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT, KEYWORDS_USER_TEMPLATE
+from src.config.schemas import TailoredResume, ATSScoreReport, ExtractedKeywords
 from src.llm.base import BaseLLMClient, BaseLLMTailor, BaseLLMATS
 
 
@@ -25,6 +25,21 @@ class GeminiClient(BaseLLMClient):
             return gemini_client
         except Exception as e:
             print(f"⚠ Gemini initialization failed: {e}")
+
+    def get_keywords(self, job_description: str, top_n: int = 30, system_prompt: str = None, user_prompt: str = None) -> ExtractedKeywords:
+        system_prompt = system_prompt or KEYWORDS_SYSTEM_PROMPT
+        user_prompt = user_prompt or KEYWORDS_USER_TEMPLATE
+        response = self.client.models.generate_content(
+            model=self.model,
+            contents=f"{system_prompt.format(top_n=top_n)}\n\n{user_prompt.format(job_description=job_description)}",
+            config=genaiTypes.GenerateContentConfig(
+                temperature=0,          # deterministic — same JD should always give same keywords
+                max_output_tokens=10000,
+                response_mime_type="application/json",
+                response_schema=ExtractedKeywords,
+            ),
+        )
+        return response.parsed
 
 
 class GeminiTailor(GeminiClient, BaseLLMTailor):

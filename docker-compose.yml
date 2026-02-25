@@ -8,9 +8,28 @@ services:
     ports:
       - ${HTTP_PORT_CV_TAILORER}:${HTTP_PORT_CV_TAILORER}
     environment:
+      - REDIS_MODE=${REDIS_MODE}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - HTTP_PORT=${HTTP_PORT_CV_TAILORER}
       - HTTP_HOST=${CV_TAILORER_CONTAINER_NAME}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - cv-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${REDIS_CONTAINER_NAME}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - cv-net
 

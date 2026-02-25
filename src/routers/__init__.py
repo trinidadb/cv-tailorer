@@ -1,1 +1,3 @@
-from src.routers.cv_tailor import router as cv_tailor
+from src.routers.tailor import router as tailorRouter
+from src.routers.ats import router as atsRouter
+from src.routers.keywords import router as keywordsRouter

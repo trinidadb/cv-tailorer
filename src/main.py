@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 import uvicorn
 
-from src.routers import cv_tailor
+from src.routers import tailorRouter, atsRouter, keywordsRouter
 
 http_port = os.getenv("HTTP_PORT")
 
@@ -45,7 +45,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(cv_tailor)
+app.include_router(tailorRouter)
+app.include_router(atsRouter)
+app.include_router(keywordsRouter)
 
 app.mount("/", StaticFiles(directory="./src/static", html=True), name="static")
 
@@ -59,3 +61,4 @@ async def read_root():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(http_port))
+    #uvicorn.run("src.main:app", host="0.0.0.0", port=int(http_port), reload=True)
