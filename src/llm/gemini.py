@@ -13,7 +13,7 @@ from src.llm.base import BaseLLMClient, BaseLLMTailor, BaseLLMATS
 
 class GeminiClient(BaseLLMClient):
 
-    def __init__(self, model: str = 'gemini-2.5-flash-lite', *args, **kwargs):
+    def __init__(self, model: str = 'gemini-2.5-flash', *args, **kwargs):
         self.model = model
         print("Provider: GEMINI")
         super().__init__(*args, **kwargs)
