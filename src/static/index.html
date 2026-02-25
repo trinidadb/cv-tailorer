@@ -161,6 +161,47 @@
         #keywordsModelField { transition: opacity 0.2s; }
         #keywordsModelField.hidden { opacity: 0.4; pointer-events: none; }
 
+        /* Temperature slider */
+        .temp-field { margin-top: 10px; margin-bottom: 1rem; }
+        .temp-header {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+        .temp-header label { margin-bottom: 0; }
+        .temp-value-wrap { display: flex; align-items: center; gap: 8px; }
+        #tempValue {
+            font-size: 0.82rem; font-weight: 700; color: #9ca3af;
+            min-width: 28px; text-align: right; transition: color 0.15s;
+        }
+        #tempValue.active { color: var(--primary); }
+        #tempClear {
+            font-size: 0.68rem; color: #9ca3af; background: none; border: none;
+            cursor: pointer; padding: 0; font-weight: 500;
+            text-decoration: underline; text-underline-offset: 2px;
+            display: none;
+        }
+        #tempClear:hover { color: #6b7280; }
+        .temp-hint { font-size: 0.68rem; color: #9ca3af; margin-top: 0.4rem; }
+
+        input[type="range"] {
+            width: 100%; height: 4px; border-radius: 2px; appearance: none;
+            background: linear-gradient(to right, var(--primary) var(--fill, 0%), #e5e7eb var(--fill, 0%));
+            outline: none; border: none; padding: 0; cursor: pointer; box-sizing: border-box;
+            display: block;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none; width: 14px; height: 14px; border-radius: 50%;
+            background: var(--primary); cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+            transition: background 0.15s;
+        }
+        input[type="range"].inactive::-webkit-slider-thumb { background: #d1d5db; }
+        input[type="range"]::-moz-range-thumb {
+            width: 14px; height: 14px; border-radius: 50%; border: none;
+            background: var(--primary); cursor: pointer;
+        }
+        input[type="range"].inactive::-moz-range-thumb { background: #d1d5db; }
+
         .spinner { width: 14px; height: 14px; border: 2px solid white; border-bottom-color: transparent; border-radius: 50%; display: none; animation: rotation 1s linear infinite; }
         .spinner.muted { border-color: #9ca3af; border-bottom-color: transparent; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -237,6 +278,19 @@
             </div>
         </div>
 
+        <!-- Temperature -->
+        <div class="temp-field">
+            <div class="temp-header">
+                <label for="tempSlider">Temperature <span style="font-weight:400;color:#9ca3af;font-size:0.75rem;">— tailorer only</span></label>
+                <div class="temp-value-wrap">
+                    <span id="tempValue">—</span>
+                    <button id="tempClear">reset</button>
+                </div>
+            </div>
+            <input type="range" id="tempSlider" min="0" max="1" step="0.01" class="inactive">
+            <div class="temp-hint">Defaults: 0.3 (Claude) · 0.4 (Gemini) · drag to override</div>
+        </div>
+
         <div class="section-title">Personal Info (Optional)</div>
         <div class="field">
             <label>Full Name</label>
@@ -302,14 +356,46 @@
         const previewTabs   = document.getElementById('previewTabs');
         const actionBtns    = document.querySelectorAll('.util-btn');
 
-        // ── Keywords model field dimming based on toggle ─────────────────
-        const extractToggle = document.getElementById('extractKeywords');
-        const keywordsModelField = document.getElementById('keywordsModelField');
-        function updateKeywordsModelState() {
-            keywordsModelField.classList.toggle('hidden', !extractToggle.checked);
+
+        // ── Temperature slider ────────────────────────────────────────────
+        const tempSlider = document.getElementById('tempSlider');
+        const tempValue  = document.getElementById('tempValue');
+        const tempClear  = document.getElementById('tempClear');
+        let tempActive   = false;
+
+        function setSliderFill(pct) {
+            // pct: 0–1 float, or 0 to show no fill
+            tempSlider.style.setProperty('--fill', (pct * 100) + '%');
         }
-        extractToggle.addEventListener('change', updateKeywordsModelState);
-        updateKeywordsModelState(); // init
+
+        function activateTemp() {
+            tempActive = true;
+            tempSlider.classList.remove('inactive');
+            tempValue.classList.add('active');
+            tempClear.style.display = 'inline';
+        }
+
+        function resetTemp() {
+            tempActive = false;
+            tempSlider.classList.add('inactive');
+            tempValue.classList.remove('active');
+            tempValue.textContent = '—';
+            tempClear.style.display = 'none';
+            tempSlider.value = 0.5;
+            setSliderFill(0);
+        }
+
+        tempSlider.addEventListener('input', () => {
+            if (!tempActive) activateTemp();
+            tempValue.textContent = parseFloat(tempSlider.value).toFixed(2);
+            setSliderFill(parseFloat(tempSlider.value));
+        });
+
+        tempClear.addEventListener('click', resetTemp);
+
+        // Init: centred thumb, no fill, inactive state
+        tempSlider.value = 0.5;
+        setSliderFill(0);
 
         // ── Tab switching ─────────────────────────────────────────────────
         previewTabs.querySelectorAll('.preview-tab').forEach(tab => {
@@ -390,7 +476,7 @@
             }
         }
 
-        // ── Generate LaTeX ────────────────────────────────────────────────
+        // ── Generate ──────────────────────────────────────────────────────
         generateBtn.addEventListener('click', async () => {
             const fileInput = document.getElementById('resumeFile');
             if (!fileInput.files[0]) return alert("Please upload a .txt resume");
@@ -402,6 +488,7 @@
             formData.append('first_extract_keywords', firstExtractKeywords);
             formData.append('tailorer_model', document.getElementById('tailorerModel').value);
             formData.append('keywords_model', document.getElementById('keywordsModel').value);
+            if (tempActive) formData.append('temperature', parseFloat(tempSlider.value).toFixed(2));
 
             generateBtn.disabled = true;
             spinner.style.display = 'block';
@@ -454,12 +541,8 @@
             keywordsPanel.innerHTML = '<div class="kw-raw" style="color:#555;">Extracting keywords…</div>';
 
             const hadLatex = currentResumeId !== null;
-
-            // Always restore the LaTeX tab visibility, then show both tabs
             previewTabs.querySelector('[data-tab="latex"]').style.display = hadLatex ? 'block' : 'none';
             previewTabs.style.display = 'flex';
-
-            // Switch to keywords panel immediately so user sees the loading state
             codePreview.style.display = 'none';
             keywordsPanel.style.display = 'block';
             previewTabs.querySelectorAll('.preview-tab').forEach(t =>

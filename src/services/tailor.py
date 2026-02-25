@@ -26,9 +26,9 @@ class CVTailor:
         job_description: str,
         structured_output: bool = True,
         generate_then_extract: bool = False,
-        keywords: str = None
+        keywords: str = None,
         # system_prompt: str = None, # if you want more user customization in the future
-        # temperature: int = None,
+        temperature: int = None,
         # max_tokens: int = None
     ) -> dict:
 
@@ -53,9 +53,9 @@ class CVTailor:
 
         try:
             if structured_output:
-                tailored_resume = self.tailorer.generate_then_extract_and_structure(system_prompt=system_prompt, user_prompt=user_prompt) if generate_then_extract else self.tailorer.generate_with_structured_output(system_prompt=system_prompt, user_prompt=user_prompt)
+                tailored_resume = self.tailorer.generate_then_extract_and_structure(system_prompt=system_prompt, user_prompt=user_prompt,temperature=temperature) if generate_then_extract else self.tailorer.generate_with_structured_output(system_prompt=system_prompt, user_prompt=user_prompt, temperature=temperature)
             else:
-                tailored_resume = self.tailorer.generate(system_prompt=system_prompt, user_prompt=user_prompt)
+                tailored_resume = self.tailorer.generate(system_prompt=system_prompt, user_prompt=user_prompt, temperature=temperature)
 
             print("✓ Resume tailored successfully!\n")
 
