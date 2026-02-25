@@ -1,5 +1,5 @@
 """
-LLM Client Manager - Handles Anthropic and Gemini API interactions
+LLM Client Manager - Handles Gemini API interactions
 """
 
 from google import genai
@@ -13,9 +13,9 @@ from src.llm.base import BaseLLMClient, BaseLLMTailor, BaseLLMATS
 
 class GeminiClient(BaseLLMClient):
 
-    def __init__(self, model: str = 'gemini-2.5-flash-lite', *args, **kwargs):
+    def __init__(self, model: str = 'gemini-2.5-flash', *args, **kwargs):
         self.model = model
-        print("Provider: GEMINI")
+        print(f"Provider: GEMINI ------ Model:{model}")
         super().__init__(*args, **kwargs)
 
     def _init_client(self, *args, **kwargs):
@@ -29,6 +29,7 @@ class GeminiClient(BaseLLMClient):
     def get_keywords(self, job_description: str, top_n: int = 30, system_prompt: str = None, user_prompt: str = None) -> ExtractedKeywords:
         system_prompt = system_prompt or KEYWORDS_SYSTEM_PROMPT
         user_prompt = user_prompt or KEYWORDS_USER_TEMPLATE
+
         response = self.client.models.generate_content(
             model=self.model,
             contents=f"{system_prompt.format(top_n=top_n)}\n\n{user_prompt.format(job_description=job_description)}",

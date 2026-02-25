@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from typing import List
 from pydantic import TypeAdapter
 
+from src.config.constants import ValidModels
 from src.config.schemas import KeywordMatch, KeywordMissing, KeywordPartialMatch
 from src.dependencies import get_ats
 from src.services.cache import get as get_from_cache
@@ -18,11 +19,12 @@ router = APIRouter(
 @router.post("/score")
 async def score(
     resume_id: str,
-    job_description: str = Form(...)
+    job_description: str = Form(...),
+    model: ValidModels = Form(ValidModels.GEM_25_FLASH),
 ):
     try:
         tailored_resume = get_from_cache(resume_id)
-        report = get_ats().score(tailored_resume, job_description)
+        report = get_ats(model=model).score(tailored_resume, job_description)
 
         return JSONResponse({"keyword_density": report.keyword_density,
                              "keyword_matches": TypeAdapter(List[KeywordMatch]).dump_python(report.keyword_matches),
