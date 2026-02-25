@@ -5,7 +5,7 @@ import io
 from typing import Optional
 
 from src.config.schemas import PersonalInfo
-from src.dependencies import get_tailor
+from src.dependencies import get_tailor, get_gemini_client
 from src.services.cache import store, get
 from src.utils import StructuredLaTeXConverter, StructuredDocxConverter, sanitize_filename
 
@@ -19,7 +19,8 @@ router = APIRouter(
 @router.post("/generate")
 async def tailor_resume(
     job_description: str = Form(...),
-    resume_file: UploadFile = File(...)
+    resume_file: UploadFile = File(...),
+    first_extract_keywords: bool = Form(...),
 ):
     if not resume_file.filename.endswith('.txt'):
         raise HTTPException(status_code=400, detail="Only .txt resume files are supported.")
@@ -28,10 +29,19 @@ async def tailor_resume(
         resume_content = await resume_file.read()
         master_resume = resume_content.decode("utf-8")
 
-        tailored_resume = get_tailor().tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True)
+        if first_extract_keywords:
+            extracted_keywords = get_gemini_client().get_keywords(job_description=job_description, top_n=30)
+            top_extracted_keywords = extracted_keywords.top()
+            tailored_resume = get_tailor().tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, keywords=extracted_keywords.format_for_prompt())
+
+        else:
+            top_extracted_keywords = "not_available"
+            tailored_resume = get_tailor().tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True)
+
         tailored_resume_id = store(tailored_resume)
 
-        return JSONResponse({"resume_id": tailored_resume_id })
+        return JSONResponse({"resume_id": tailored_resume_id,
+                             "keywords": top_extracted_keywords})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during tailoring: {str(e)}")

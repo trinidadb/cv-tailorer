@@ -3,6 +3,28 @@ from typing import Optional
 
 
 # ------------------------------------------------------------------
+# KEYWORD EXTRACTOR
+# ------------------------------------------------------------------
+
+class ExtractedKeyword(BaseModel):
+    keyword: str
+    category: str   # "technical" | "tool" | "soft_skill" | "management" | "domain"
+    rank: int       # 1 = most important
+
+
+class ExtractedKeywords(BaseModel):
+    keywords: list[ExtractedKeyword]
+
+    def top(self, n: int = 30) -> list[str]:
+        sorted_kws = sorted(self.keywords, key=lambda k: k.rank)
+        return [k.keyword for k in sorted_kws[:n]]
+
+    def format_for_prompt(self, n: int = 30) -> str:
+        top = sorted(self.keywords, key=lambda k: k.rank)[:n]
+        lines = "\n".join(f"{kw.rank}. [{kw.category}] {kw.keyword}" for kw in top)
+        return f"TOP {n} JD KEYWORDS (ranked by importance):\n{lines}"
+
+# ------------------------------------------------------------------
 # TAILORER
 # ------------------------------------------------------------------
 
@@ -44,21 +66,20 @@ class PersonalInfo(BaseModel):
 class KeywordMatch(BaseModel):
     keyword: str
     tier: str           # "critical" | "important" | "nice_to_have"
-    found: bool
-    context: str        # where it was found, or suggestion if missing
 
+class KeywordPartialMatch(BaseModel):
+    keyword: str
+    partial_match: str
+    tier: str           # "critical" | "important" | "nice_to_have"
 
-class SectionScore(BaseModel):
-    section: str        # "headline" | "summary" | "experience" | "skills"
-    score: int          # 0-100
-    feedback: str
+class KeywordMissing(BaseModel):
+    keyword: str
+    tier: str           # "critical" | "important" | "nice_to_have"
 
 
 class ATSScoreReport(BaseModel):
-    overall_score: int                  # 0-100
     keyword_density: float              # percentage estimate
     keyword_matches: list[KeywordMatch]
-    section_scores: list[SectionScore]
-    missing_critical_keywords: list[str]
+    keyword_partial_matches: list[KeywordPartialMatch]
+    keyword_missing: list[KeywordMissing]
     improvement_suggestions: list[str]  # ordered by impact
-    ats_verdict: str                    # "Strong Pass" | "Likely Pass" | "Borderline" | "Likely Fail"

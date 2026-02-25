@@ -2,8 +2,16 @@ google.genai
 python-dotenv>=1.0.0
 tiktoken>=0.7.0
 python-docx
+nltk
+scikit-learn
+networkx
+yake
+keybert
+sentence-transformers
+numpy
 #Only neccessary if you wanna run it with fastapi
 fastapi
 uvicorn
 python-multipart
 cachetools
+redis
