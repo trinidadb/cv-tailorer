@@ -4,8 +4,9 @@ from fastapi.responses import StreamingResponse, JSONResponse
 import io
 from typing import Optional
 
+from src.config.constants import ValidModels
 from src.config.schemas import PersonalInfo
-from src.dependencies import get_tailor, get_gemini_client
+from src.dependencies import get_tailor, get_client_provider
 from src.services.cache import store, get
 from src.utils import StructuredLaTeXConverter, StructuredDocxConverter, sanitize_filename
 
@@ -21,6 +22,8 @@ async def tailor_resume(
     job_description: str = Form(...),
     resume_file: UploadFile = File(...),
     first_extract_keywords: bool = Form(...),
+    keywords_model: ValidModels = Form(ValidModels.GEM_25_FLASH),
+    tailorer_model: ValidModels = Form(ValidModels.GEM_25_FLASH)
 ):
     if not resume_file.filename.endswith('.txt'):
         raise HTTPException(status_code=400, detail="Only .txt resume files are supported.")
@@ -30,13 +33,13 @@ async def tailor_resume(
         master_resume = resume_content.decode("utf-8")
 
         if first_extract_keywords:
-            extracted_keywords = get_gemini_client().get_keywords(job_description=job_description, top_n=30)
+            extracted_keywords = get_client_provider(model=keywords_model).get_keywords(job_description=job_description, top_n=30)
             top_extracted_keywords = extracted_keywords.top()
-            tailored_resume = get_tailor().tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, keywords=extracted_keywords.format_for_prompt())
+            tailored_resume = get_tailor(model=tailorer_model).tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, keywords=extracted_keywords.format_for_prompt())
 
         else:
             top_extracted_keywords = "not_available"
-            tailored_resume = get_tailor().tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True)
+            tailored_resume = get_tailor(model=tailorer_model).tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True)
 
         tailored_resume_id = store(tailored_resume)
 

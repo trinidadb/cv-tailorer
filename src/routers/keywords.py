@@ -3,9 +3,9 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from typing import List, Optional
 from pydantic import TypeAdapter
-from src.dependencies import get_gemini_client
-from src.config.constants import ValidKeyExtractorMethods
+from src.config.constants import ValidKeyExtractorMethods, ValidModels
 from src.config.schemas import ExtractedKeyword
+from src.dependencies import get_client_provider
 from src.services.keywords import KeywordsExtractor
 
 
@@ -35,11 +35,12 @@ async def get_keywords(
 @router.post("/llm")
 async def get_keywords_using_llm(
     job_description: str = Form(...),
-    top_n: Optional[int] = Form(30)
+    top_n: Optional[int] = Form(30),
+    model: ValidModels = Form(ValidModels.GEM_25_FLASH)
 ):
     try:
 
-        extracted_keywords = get_gemini_client().get_keywords(job_description=job_description, top_n=top_n)
+        extracted_keywords = get_client_provider(model=model).get_keywords(job_description=job_description, top_n=top_n)
 
         return JSONResponse({"keywords": TypeAdapter(List[ExtractedKeyword]).dump_python(extracted_keywords.keywords) })
 
