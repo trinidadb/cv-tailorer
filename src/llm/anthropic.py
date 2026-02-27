@@ -44,7 +44,7 @@ class AnthropicClient(BaseLLMClient):
 
 class AnthropicTailor(AnthropicClient, BaseLLMTailor):
 
-    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: int = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
+    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: float = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
 
         print("[ANTHROPIC] GENERATE WITH UNSTRUCTURED OUTPUT ------- Temperature:{temperature}")
 
@@ -59,9 +59,9 @@ class AnthropicTailor(AnthropicClient, BaseLLMTailor):
         )
         return response.content[0].text
 
-    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: int = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> TailoredResume:
+    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: float = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> TailoredResume:
 
-        print("[ANTHROPIC] GENERATE WITH STRUCTURED OUTPUT ------- Temperature:{temperature}")
+        print(f"[ANTHROPIC] GENERATE WITH STRUCTURED OUTPUT ------- Temperature:{temperature}")
 
         response = self.client.messages.parse(
             model=self.model,
@@ -75,7 +75,7 @@ class AnthropicTailor(AnthropicClient, BaseLLMTailor):
         )
         return response.parsed_output
 
-    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: int = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> TailoredResume:
+    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: float = ANTHROPIC_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR) -> TailoredResume:
         """Creative generation is unconstrained, extraction step is a simpler deterministic task."""
 
         print("[ANTHROPIC] GENERATE THEN EXTRACT AND STRUCTURE OUTPUT ------- Temperature:{temperature}")

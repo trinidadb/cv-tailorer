@@ -28,7 +28,7 @@ class CVTailor:
         generate_then_extract: bool = False,
         keywords: str = None,
         # system_prompt: str = None, # if you want more user customization in the future
-        temperature: int = None,
+        temperature: float = None,
         # max_tokens: int = None
     ) -> dict:
 

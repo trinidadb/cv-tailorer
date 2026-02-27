@@ -50,7 +50,7 @@ class GeminiTailor(GeminiClient, BaseLLMTailor):
         user_prompt = user_prompt or USER_PROMPT_TEMPLATE
         return f"{system_prompt}\n\n{user_prompt}"
 
-    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> str:
+    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: float = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> str:
 
         print("[GEMINI] GENERATE WITH UNSTRUCTURED OUTPUT ------- Temperature:{temperature}")
 
@@ -67,7 +67,7 @@ class GeminiTailor(GeminiClient, BaseLLMTailor):
 
         return response.text
 
-    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> TailoredResume:
+    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: float = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> TailoredResume:
 
         print(f"[GEMINI] GENERATE WITH STRUCTURED OUTPUT ------- Temperature:{temperature}")
 
@@ -86,7 +86,7 @@ class GeminiTailor(GeminiClient, BaseLLMTailor):
 
         return response.parsed
 
-    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ):
+    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: float = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ):
         '''This way the creative generation is unconstrained, and the extraction step is a much simpler task that rarely degrades quality.'''
 
         print("[GEMINI] GENERATE THEN EXTRACT AND STRUCTURE OUTPUT ------- Temperature:{temperature}")

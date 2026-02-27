@@ -21,15 +21,15 @@ class BaseLLMTailor(ABC):
     """Interface for tailor-specific LLM methods"""
 
     @abstractmethod
-    def generate(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
+    def generate(self, system_prompt: str, user_prompt: str, temperature: float = None, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
         pass
 
     @abstractmethod
-    def generate_with_structured_output(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR):
+    def generate_with_structured_output(self, system_prompt: str, user_prompt: str, temperature: float = None, max_tokens: int = MAX_TOKENS_TAILOR):
         pass
 
     @abstractmethod
-    def generate_then_extract_and_structure(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR):
+    def generate_then_extract_and_structure(self, system_prompt: str, user_prompt: str, temperature: float = None, max_tokens: int = MAX_TOKENS_TAILOR):
         pass
 
 

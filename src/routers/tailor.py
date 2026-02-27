@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 import io
 from typing import Optional
 
-from src.config.constants import ValidModels, ValidProviders
+from src.config.constants import ValidModels, ValidProviders, ANTHROPIC_TEMPERATURE, GEMINI_TEMPERATURE
 from src.config.schemas import PersonalInfo
 from src.dependencies import get_tailor, get_client_provider, MODELS
 from src.services.cache import store, get
@@ -36,6 +36,9 @@ async def tailor_resume(
         if temperature and is_gemini_provider:
             temperature = temperature*2  # Gemini temperature range in between 0 and 2
 
+        if not temperature:
+            temperature = GEMINI_TEMPERATURE if is_gemini_provider else ANTHROPIC_TEMPERATURE
+
         if first_extract_keywords:
             extracted_keywords = get_client_provider(model=keywords_model).get_keywords(job_description=job_description, top_n=30)
             top_extracted_keywords = extracted_keywords.top()
@@ -60,7 +63,7 @@ def _prepare_for_format(resume_id, name, email, location, linkedin, github):
     if not tailored_resume:
         raise HTTPException(
             status_code=404,
-            detail="Resume not found or session expired. Please generate again."
+            detail=f"Error generating tailored resumen. Resume not generated."
         )
 
     personal_info = PersonalInfo(name=name, email=email, location=location, linkedin=linkedin, github=github)
