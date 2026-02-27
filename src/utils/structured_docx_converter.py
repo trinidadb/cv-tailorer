@@ -66,6 +66,12 @@ class StructuredDocxConverter:
     SIZE_BODY        = Pt(10)
     SIZE_JOB_TITLE   = Pt(10)
 
+    # ── Hardcoded overrides ───────────────────────────────────────
+    COMPANY_SUFFIXES = {
+        0: "| Research & Consulting Organization",
+        1: "| USA's Largest Financial Services Provider",
+    }
+
     # ── Helpers ───────────────────────────────────────────────────
 
     def _set_font(self, run, size=None, bold=False, italic=False, color=None):
@@ -133,14 +139,18 @@ class StructuredDocxConverter:
     def _build_experience(self, doc, experience: list):
         self._add_section_heading(doc, "Professional Experience")
 
-        for entry in experience:
+        for idx, entry in enumerate(experience):
+            suffix = self.COMPANY_SUFFIXES.get(idx, "")
+
             p = self._add_paragraph(doc, space_before=4, space_after=0)
             run = p.add_run(entry.job_title)
             self._set_font(run, size=self.SIZE_BODY, bold=True)
 
             p = self._add_paragraph(doc, space_before=0, space_after=0)
-            run = p.add_run(entry.company)
+            run = p.add_run(f"{entry.company}")
             self._set_font(run, size=self.SIZE_JOB_TITLE, bold=True, italic=True)
+            run = p.add_run(f"  {suffix}" if suffix else None)
+            self._set_font(run, size=self.SIZE_BODY, italic=True)
 
             p = self._add_paragraph(doc, space_before=0, space_after=0)
             run = p.add_run(entry.location)
@@ -175,6 +185,98 @@ class StructuredDocxConverter:
             run = p.add_run(", ".join(entry.skills))
             self._set_font(run, size=self.SIZE_BODY)
 
+    def _build_education(self, doc):
+        self._add_section_heading(doc, "Education")
+
+        entries = [
+            {
+                "degree": "Master in Smart Systems",
+                "gpa": "GPA: 9.0/10",
+                "institution": "University of Salamanca",
+                "location": "Spain",
+                "dates": "11/2023 – 10/2024",
+                "bullets": [
+                    "Specialization: Machine Learning, Deep Learning, Statistics, Data Mining, Data Science, Data Visualization, Econometrics",
+                    'Thesis: "Application of Convolutional Neural Networks in bioacoustics analysis" - Applied advanced analytical modeling techniques to solve complex pattern recognition problem',
+                ],
+            },
+            {
+                "degree": "Bachelor of Science in Electronic Engineering",
+                "gpa": "GPA: 8.9/10",
+                "institution": "Catholic University of Argentina (UCA)",
+                "location": "Argentina",
+                "dates": "03/2016 – 07/2022",
+                "bullets": [
+                    "Quantitative curriculum including Applied Mathematics, Operations Research, Statistics, Systems Engineering",
+                    'Thesis: "Image stabilizer system - application of the Kalman Filter using dual-core DSP"',
+                ],
+            },
+        ]
+
+        for edu in entries:
+            p = self._add_paragraph(doc, space_before=4, space_after=0)
+            run = p.add_run(edu["degree"])
+            self._set_font(run, size=self.SIZE_BODY, bold=True)
+            run = p.add_run(f"  | {edu['gpa']}")
+            self._set_font(run, size=self.SIZE_BODY,)
+
+            p = self._add_paragraph(doc, space_before=0, space_after=0)
+            run = p.add_run(edu['institution'])
+            self._set_font(run, size=self.SIZE_BODY, bold=True)
+
+            p = self._add_paragraph(doc, space_before=0, space_after=0)
+            run = p.add_run(f"{edu['location']}")
+            self._set_font(run, size=self.SIZE_BODY, italic=True)
+
+            p = self._add_paragraph(doc, space_before=0, space_after=2)
+            run = p.add_run(edu["dates"])
+            self._set_font(run, size=self.SIZE_BODY)
+
+            for bullet in edu["bullets"]:
+                p = doc.add_paragraph(style='List Bullet')
+                p.paragraph_format.space_before = Pt(0)
+                p.paragraph_format.space_after = Pt(1)
+                p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+                run = p.add_run(bullet)
+                self._set_font(run, size=self.SIZE_BODY)
+
+            doc.add_paragraph().paragraph_format.space_after = Pt(2)
+
+    def _build_certifications(self, doc):
+        self._add_section_heading(doc, "Certifications & Professional Development")
+
+        certs = [
+            "AWS Cloud Practitioner (2025)",
+            "Generative AI with Large Language Models Specialization - DeepLearning.AI & AWS (2025)",
+            "Neural Networks Certification (2023)",
+            "Machine Learning Certification (2022)",
+            "MIT Leading Digital Transformation - Santander Scholarship (2020)",
+            "PMP Candidate - Project Management Professional (in progress)",
+        ]
+
+        for cert in certs:
+            p = doc.add_paragraph(style='List Bullet')
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(2)
+            run = p.add_run(cert)
+            self._set_font(run, size=self.SIZE_BODY)
+
+    def _build_awards(self, doc):
+        self._add_section_heading(doc, "Awards & Recognition")
+
+        awards = [
+            "Winner - Argentine Association of Control's National Thesis Contest (2023)",
+            "Recognition from Microchip Technology and MC Electronics for thesis excellence",
+            "PRIUNES Scholarship - Catholic University of Argentina (2016)",
+        ]
+
+        for award in awards:
+            p = doc.add_paragraph(style='List Bullet')
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(2)
+            run = p.add_run(award)
+            self._set_font(run, size=self.SIZE_BODY)
+
     # ── Main entry point ──────────────────────────────────────────
 
     def convert(self, resume, personal_info: PersonalInfo = None) -> Document:
@@ -203,12 +305,15 @@ class StructuredDocxConverter:
 
         info = personal_info or PersonalInfo()
 
-        self._build_header(doc, 
+        self._build_header(doc,
                            name=info.name or "Your Name",
                            headline=resume.headline,
                            personal_info=info)
         self._build_summary(doc, resume.professional_summary)
         self._build_experience(doc, resume.professional_experience)
+        self._build_education(doc)
+        self._build_certifications(doc)
+        self._build_awards(doc)
         self._build_skills(doc, resume.skills)
 
         return doc

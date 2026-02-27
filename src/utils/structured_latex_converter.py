@@ -38,22 +38,60 @@ class StructuredLaTeXConverter:
         """Escape special LaTeX characters in a string."""
         return text.translate(LATEX_SPECIAL_CHARS)
 
+    COMPANY_SUFFIXES = {
+        0: "| Research & Consulting Organization",
+        1: "| USA's Largest Financial Services Provider",
+    }
+
+    def _build_education(self) -> str:
+        return r"""
+\noindent\textbf{Master in Smart Systems} \hfill \textit{Spain}\\
+\textit{University of Salamanca} \hfill 10/2023 -- 10/2024\\
+\textit{GPA: 9.0/10}
+\begin{itemize}
+  \item Specialization: Machine Learning, Deep Learning, Statistics, Data Mining, Data Science, Data Visualization, Econometrics
+  \item Thesis: ``Application of Convolutional Neural Networks in bioacoustics analysis'' -- Applied advanced analytical modeling techniques to solve complex pattern recognition problem
+\end{itemize}
+\vspace{0.1in}
+
+\noindent\textbf{Bachelor of Science in Electronic Engineering} \hfill \textit{Argentina}\\
+\textit{Catholic University of Argentina (UCA)} \hfill 03/2016 -- 07/2022\\
+\text{GPA: 8.9/10}
+\begin{itemize}
+  \item Quantitative curriculum including Applied Mathematics, Operations Research, Statistics, Systems Engineering
+  \item Thesis: ``Image stabilizer system -- application of the Kalman Filter using dual-core DSP''
+\end{itemize}
+"""
+
+    def _build_awards(self) -> str:
+        return r"""
+\begin{itemize}
+  \item Winner -- Argentine Association of Control's National Student Thesis Contest (2023)
+  \item Recognition from Microchip Technology and MC Electronics for thesis excellence in analytical problem-solving
+  \item PRIUNES Scholarship -- Catholic University of Argentina (2016)
+\end{itemize}
+"""
+
     def _build_experience(self, experience: list) -> str:
         """Render the professional experience entries."""
         lines = []
-        for entry in experience:
+        for idx, entry in enumerate(experience):
             company   = self.clean(entry.company)
             location  = self.clean(entry.location)
             job_title = self.clean(entry.job_title)
             start     = self.clean(entry.start_date)
             end       = self.clean(entry.end_date)
 
+            # Append hardcoded company suffix if defined
+            suffix = self.COMPANY_SUFFIXES.get(idx, "")
+            company_display = f"{company} {suffix}" if suffix else company
+
             # Company + location on one line, dates flush-right
             lines.append(
                 rf"\noindent\textbf{{{job_title}}} \hfill \textit{{{location}}}\\"
             )
             lines.append(
-                rf"\textit{{{company}}} \hfill {start} -- {end}\\"
+                rf"\textit\textbf{{{{{company_display}}}}} \hfill {start} -- {end}\\"
             )
             lines.append(r"\vspace{2pt}")
 
@@ -100,6 +138,8 @@ class StructuredLaTeXConverter:
         summary     = self.clean(resume.professional_summary)
         experience  = self._build_experience(resume.professional_experience)
         skills      = self._build_skills(resume.skills)
+        education   = self._build_education()
+        awards      = self._build_awards()
 
         doc = rf"""\documentclass[11pt,letterpaper]{{article}}
 
@@ -164,6 +204,14 @@ class StructuredLaTeXConverter:
 % ── Skills ───────────────────────────────────────────────────────────
 \section*{{Skills}}
 {skills}
+
+% ── Education ────────────────────────────────────────────────────────
+\section*{{Education}}
+{education}
+
+% ── Awards \& Recognition ─────────────────────────────────────────────
+\section*{{Awards \& Recognition}}
+{awards}
 \end{{document}}
 """
         return doc
