@@ -12,6 +12,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
+from src.config.constants import ValidLanguages
 from src.config.schemas import PersonalInfo
 
 
@@ -65,6 +66,9 @@ class StructuredDocxConverter:
     SIZE_SECTION     = Pt(12)
     SIZE_BODY        = Pt(10)
     SIZE_JOB_TITLE   = Pt(10)
+
+    def __init__(self, language: ValidLanguages = ValidLanguages.EN):
+        self.english = (language == ValidLanguages.EN)
 
     # ── Helpers ───────────────────────────────────────────────────
 
@@ -124,14 +128,14 @@ class StructuredDocxConverter:
             self._set_font(run, size=self.SIZE_CONTACT, color=self.COLOR_DARK_GRAY)
 
     def _build_summary(self, doc, summary: str):
-        self._add_section_heading(doc, "Professional Summary")
+        self._add_section_heading(doc, "Profile" if self.english else "Perfil")
         p = self._add_paragraph(doc, space_after=6)
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         run = p.add_run(summary)
         self._set_font(run, size=self.SIZE_BODY)
 
     def _build_experience(self, doc, experience: list):
-        self._add_section_heading(doc, "Professional Experience")
+        self._add_section_heading(doc, "Professional Experience" if self.english else "Experiencia")
 
         for entry in experience:
             p = self._add_paragraph(doc, space_before=4, space_after=0)

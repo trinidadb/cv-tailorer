@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.config.constants import MAX_TOKENS_TAILOR
+from src.config.constants import MAX_TOKENS_TAILOR, ValidLanguages
 from src.config.schemas import ExtractedKeywords
 
 
@@ -13,7 +13,7 @@ class BaseLLMClient(ABC):
         pass
 
     @abstractmethod
-    def get_keywords(self, job_description: str, top_n: int = 30) -> ExtractedKeywords:
+    def get_keywords(self, job_description: str, top_n: int = 30, *args, **kwargs) -> ExtractedKeywords:
         pass
 
 

@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 import io
 from typing import Optional
 
-from src.config.constants import ValidModels, ValidProviders, ANTHROPIC_TEMPERATURE, GEMINI_TEMPERATURE
+from src.config.constants import ValidModels, ValidProviders, ValidLanguages, ANTHROPIC_TEMPERATURE, GEMINI_TEMPERATURE
 from src.config.schemas import PersonalInfo
 from src.dependencies import get_tailor, get_client_provider, MODELS
 from src.services.cache import store, get
@@ -22,6 +22,7 @@ async def tailor_resume(
     job_description: str = Form(...),
     resume_file: UploadFile = File(...),
     first_extract_keywords: bool = Form(...),
+    language: ValidLanguages = Form(ValidLanguages.EN),
     keywords_model: ValidModels = Form(ValidModels.GEM_25_FLASH),
     tailorer_model: ValidModels = Form(ValidModels.GEM_25_FLASH),
     temperature: Optional[float] = Form(None, ge=0.0, le=1.0) # [0-1]
@@ -40,13 +41,13 @@ async def tailor_resume(
             temperature = GEMINI_TEMPERATURE if is_gemini_provider else ANTHROPIC_TEMPERATURE
 
         if first_extract_keywords:
-            extracted_keywords = get_client_provider(model=keywords_model).get_keywords(job_description=job_description, top_n=30)
+            extracted_keywords = get_client_provider(model=keywords_model).get_keywords(job_description=job_description, top_n=30, language=language)
             top_extracted_keywords = extracted_keywords.top()
-            tailored_resume = get_tailor(model=tailorer_model).tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, keywords=extracted_keywords.format_for_prompt(), temperature=temperature)
+            tailored_resume = get_tailor(model=tailorer_model).tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, keywords=extracted_keywords.format_for_prompt(), temperature=temperature, language=language)
 
         else:
             top_extracted_keywords = "not_available"
-            tailored_resume = get_tailor(model=tailorer_model).tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, temperature=temperature)
+            tailored_resume = get_tailor(model=tailorer_model).tailor_resume(master_resume=master_resume, job_description=job_description, structured_output=True, temperature=temperature, language=language)
 
         tailored_resume_id = store(tailored_resume)
 
@@ -79,11 +80,12 @@ async def get_latex(
     email: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
     linkedin: Optional[str] = Query(None),
-    github: Optional[str] = Query(None)
+    github: Optional[str] = Query(None),
+    language: ValidLanguages = Query(ValidLanguages.EN)
 ):
     try:
         tailored_resume, personal_info, filename = _prepare_for_format(resume_id, name, email, location, linkedin, github)
-        latex_content = StructuredLaTeXConverter().convert(tailored_resume, personal_info=personal_info)
+        latex_content = StructuredLaTeXConverter(language=language).convert(tailored_resume, personal_info=personal_info)
 
         return StreamingResponse(
             io.BytesIO(latex_content.encode("utf-8")),
@@ -102,11 +104,12 @@ async def get_docx(
     email: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
     linkedin: Optional[str] = Query(None),
-    github: Optional[str] = Query(None)
+    github: Optional[str] = Query(None),
+    language: ValidLanguages = Query(ValidLanguages.EN),
 ):
     try:
         tailored_resume, personal_info, filename = _prepare_for_format(resume_id, name, email, location, linkedin, github)
-        docx_document = StructuredDocxConverter().convert(tailored_resume, personal_info=personal_info)
+        docx_document = StructuredDocxConverter(language=language).convert(tailored_resume, personal_info=personal_info)
 
         docx_buffer = io.BytesIO()
         docx_document.save(docx_buffer)
