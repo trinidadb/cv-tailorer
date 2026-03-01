@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.config.constants import MAX_TOKENS_TAILOR
+from src.config.constants import MAX_TOKENS_TAILOR, ValidLanguages
 from src.config.schemas import ExtractedKeywords
 
 
@@ -13,7 +13,7 @@ class BaseLLMClient(ABC):
         pass
 
     @abstractmethod
-    def get_keywords(self, job_description: str, top_n: int = 30) -> ExtractedKeywords:
+    def get_keywords(self, job_description: str, top_n: int = 30, *args, **kwargs) -> ExtractedKeywords:
         pass
 
 
@@ -21,15 +21,15 @@ class BaseLLMTailor(ABC):
     """Interface for tailor-specific LLM methods"""
 
     @abstractmethod
-    def generate(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
+    def generate(self, system_prompt: str, user_prompt: str, temperature: float = None, max_tokens: int = MAX_TOKENS_TAILOR) -> str:
         pass
 
     @abstractmethod
-    def generate_with_structured_output(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR):
+    def generate_with_structured_output(self, system_prompt: str, user_prompt: str, temperature: float = None, max_tokens: int = MAX_TOKENS_TAILOR):
         pass
 
     @abstractmethod
-    def generate_then_extract_and_structure(self, system_prompt: str, user_prompt: str, temperature: int = None, max_tokens: int = MAX_TOKENS_TAILOR):
+    def generate_then_extract_and_structure(self, system_prompt: str, user_prompt: str, temperature: float = None, max_tokens: int = MAX_TOKENS_TAILOR):
         pass
 
 

@@ -2,8 +2,8 @@
 CV Tailor Engine - Core functionality for resume tailoring
 """
 
-from src.config.constants import ValidFileExtensions
-from src.config.prompts import USER_PROMPT_TEMPLATE, USER_PROMPT_TEMPLATE_PRE_KEYWORD, SYSTEM_PROMPT_PRE_KEYWORD, SYSTEM_PROMPT
+from src.config.constants import ValidFileExtensions, ValidLanguages
+from src.config.prompts import USER_PROMPT_TEMPLATE, USER_PROMPT_TEMPLATE_PRE_KEYWORD, SYSTEM_PROMPT_PRE_KEYWORD, SYSTEM_PROMPT, USER_PROMPT_TEMPLATE_ES, USER_PROMPT_TEMPLATE_PRE_KEYWORD_ES, SYSTEM_PROMPT_PRE_KEYWORD_ES, SYSTEM_PROMPT_ES
 from src.llm import GeminiTailor
 
 import sys
@@ -28,28 +28,32 @@ class CVTailor:
         generate_then_extract: bool = False,
         keywords: str = None,
         # system_prompt: str = None, # if you want more user customization in the future
-        temperature: int = None,
-        # max_tokens: int = None
+        temperature: float = None,
+        # max_tokens: int = None,
+        language: ValidLanguages = ValidLanguages.EN
     ) -> dict:
 
         print("📝 Tailoring your resume...")
 
+        is_english = (language == ValidLanguages.EN)
         if keywords and structured_output:
-            user_prompt = USER_PROMPT_TEMPLATE_PRE_KEYWORD.format(
+            user_prompt_template_pre_keywords = USER_PROMPT_TEMPLATE_PRE_KEYWORD if is_english else USER_PROMPT_TEMPLATE_PRE_KEYWORD_ES
+            user_prompt = user_prompt_template_pre_keywords.format(
                 keywords_block=keywords,
                 master_resume=master_resume,
                 job_description=job_description
             )
 
-            system_prompt = SYSTEM_PROMPT_PRE_KEYWORD
+            system_prompt = SYSTEM_PROMPT_PRE_KEYWORD if is_english else SYSTEM_PROMPT_PRE_KEYWORD_ES
 
         else:
-            user_prompt = USER_PROMPT_TEMPLATE.format(
+            user_prompt_template = USER_PROMPT_TEMPLATE if is_english else USER_PROMPT_TEMPLATE_ES
+            user_prompt = user_prompt_template.format(
                 master_resume=master_resume,
                 job_description=job_description
             )
 
-            system_prompt = SYSTEM_PROMPT
+            system_prompt = SYSTEM_PROMPT if is_english else SYSTEM_PROMPT_ES
 
         try:
             if structured_output:

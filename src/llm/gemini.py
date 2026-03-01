@@ -5,8 +5,8 @@ LLM Client Manager - Handles Gemini API interactions
 from google import genai
 from google.genai import types as genaiTypes
 
-from src.config.constants import MAX_TOKENS_TAILOR, GEMINI_TEMPERATURE, MAX_TOKENS_ATS
-from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT, KEYWORDS_USER_TEMPLATE
+from src.config.constants import ValidLanguages, MAX_TOKENS_TAILOR, GEMINI_TEMPERATURE, MAX_TOKENS_ATS
+from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT, KEYWORDS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT_ES, KEYWORDS_USER_TEMPLATE_ES
 from src.config.schemas import TailoredResume, ATSScoreReport, ExtractedKeywords
 from src.llm.base import BaseLLMClient, BaseLLMTailor, BaseLLMATS
 
@@ -26,9 +26,9 @@ class GeminiClient(BaseLLMClient):
         except Exception as e:
             print(f"⚠ Gemini initialization failed: {e}")
 
-    def get_keywords(self, job_description: str, top_n: int = 30, system_prompt: str = None, user_prompt: str = None) -> ExtractedKeywords:
-        system_prompt = system_prompt or KEYWORDS_SYSTEM_PROMPT
-        user_prompt = user_prompt or KEYWORDS_USER_TEMPLATE
+    def get_keywords(self, job_description: str, top_n: int = 30, language: ValidLanguages = ValidLanguages.EN) -> ExtractedKeywords:
+        system_prompt = KEYWORDS_SYSTEM_PROMPT if language == ValidLanguages.EN else KEYWORDS_SYSTEM_PROMPT_ES
+        user_prompt = KEYWORDS_USER_TEMPLATE if language == ValidLanguages.EN else KEYWORDS_USER_TEMPLATE_ES
 
         response = self.client.models.generate_content(
             model=self.model,
@@ -50,7 +50,7 @@ class GeminiTailor(GeminiClient, BaseLLMTailor):
         user_prompt = user_prompt or USER_PROMPT_TEMPLATE
         return f"{system_prompt}\n\n{user_prompt}"
 
-    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> str:
+    def generate(self, system_prompt: str = None, user_prompt: str = None, temperature: float = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> str:
 
         print("[GEMINI] GENERATE WITH UNSTRUCTURED OUTPUT ------- Temperature:{temperature}")
 
@@ -67,7 +67,7 @@ class GeminiTailor(GeminiClient, BaseLLMTailor):
 
         return response.text
 
-    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> TailoredResume:
+    def generate_with_structured_output(self, system_prompt: str = None, user_prompt: str = None, temperature: float = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ) -> TailoredResume:
 
         print(f"[GEMINI] GENERATE WITH STRUCTURED OUTPUT ------- Temperature:{temperature}")
 
@@ -86,7 +86,7 @@ class GeminiTailor(GeminiClient, BaseLLMTailor):
 
         return response.parsed
 
-    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: int = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ):
+    def generate_then_extract_and_structure(self, system_prompt: str = None, user_prompt: str = None, temperature: float = GEMINI_TEMPERATURE, max_tokens: int = MAX_TOKENS_TAILOR ):
         '''This way the creative generation is unconstrained, and the extraction step is a much simpler task that rarely degrades quality.'''
 
         print("[GEMINI] GENERATE THEN EXTRACT AND STRUCTURE OUTPUT ------- Temperature:{temperature}")

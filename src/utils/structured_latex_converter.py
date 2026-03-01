@@ -2,7 +2,7 @@
 LaTeX Converter - Converts structured TailoredResume (Pydantic) to LaTeX format
 Works with the structured output from GeminiClient using the TailoredResume schema.
 """
-
+from src.config.constants import ValidLanguages
 from src.config.schemas import PersonalInfo
 
 LATEX_SPECIAL_CHARS = str.maketrans({
@@ -33,6 +33,9 @@ class StructuredLaTeXConverter:
     Converts a TailoredResume Pydantic object into a compilable LaTeX document.
     No regex parsing needed — data comes in clean from the structured LLM output.
     """
+
+    def __init__(self, language: ValidLanguages = ValidLanguages.EN):
+        self.english = (language == ValidLanguages.EN)
 
     def clean(self, text: str) -> str:
         """Escape special LaTeX characters in a string."""
@@ -155,11 +158,11 @@ class StructuredLaTeXConverter:
 \vspace{{0.1in}}
 
 % ── Professional Summary ──────────────────────────────────────────────
-\section*{{Professional Summary}}
+\section*{{{'Profile' if self.english else 'Perfil'}}}
 {summary}
 
 % ── Professional Experience ───────────────────────────────────────────
-\section*{{Professional Experience}}
+\section*{{{'Professional Experience' if self.english else 'Experiencia'}}}
 {experience}
 % ── Skills ───────────────────────────────────────────────────────────
 \section*{{Skills}}

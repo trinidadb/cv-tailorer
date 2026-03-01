@@ -33,3 +33,8 @@ class ValidModels(Enum):
     GEM_30 = "gemini-3-pro-preview"
     GEM_30_FLASH = "gemini-3-flash-preview"
     GEM_31 = "gemini-3.1-pro-preview"
+
+
+class ValidLanguages(Enum):
+    EN = "english"
+    ES = "spanish"
