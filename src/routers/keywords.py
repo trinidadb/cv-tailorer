@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from typing import List, Optional
 from pydantic import TypeAdapter
-from src.config.constants import ValidKeyExtractorMethods, ValidModels
+from src.config.constants import ValidKeyExtractorMethods, ValidModels, ValidLanguages
 from src.config.schemas import ExtractedKeyword
 from src.dependencies import get_client_provider
 from src.services.keywords import KeywordsExtractor
@@ -36,11 +36,12 @@ async def get_keywords(
 async def get_keywords_using_llm(
     job_description: str = Form(...),
     top_n: Optional[int] = Form(30),
-    model: ValidModels = Form(ValidModels.GEM_25_FLASH)
+    model: ValidModels = Form(ValidModels.GEM_25_FLASH),
+    language: ValidLanguages = Form(ValidLanguages.EN),
 ):
     try:
 
-        extracted_keywords = get_client_provider(model=model).get_keywords(job_description=job_description, top_n=top_n)
+        extracted_keywords = get_client_provider(model=model).get_keywords(job_description=job_description, top_n=top_n, language=language)
 
         return JSONResponse({"keywords": TypeAdapter(List[ExtractedKeyword]).dump_python(extracted_keywords.keywords) })
 

@@ -217,9 +217,18 @@
             <label>Target Job Description</label>
             <textarea id="jobDesc" placeholder="Paste the job requirements..."></textarea>
         </div>
-        <div class="field">
-            <label>Master Resume (.txt)</label>
-            <input type="file" id="resumeFile" accept=".txt">
+        <div class="grid-fields">
+            <div class="field">
+                <label>Master Resume (.txt)</label>
+                <input type="file" id="resumeFile" accept=".txt">
+            </div>
+            <div class="field">
+                <label>Output Language</label>
+                <select id="language">
+                    <option value="english" selected>🇬🇧 English</option>
+                    <option value="spanish">🇪🇸 Spanish</option>
+                </select>
+            </div>
         </div>
 
         <!-- Toggle + reference keywords button -->
@@ -422,7 +431,8 @@
                 email:    document.getElementById('email').value,
                 location: document.getElementById('location').value,
                 linkedin: document.getElementById('linkedin').value,
-                github:   document.getElementById('github').value
+                github:   document.getElementById('github').value,
+                language: document.getElementById('language').value
             }).toString();
         }
 
@@ -488,6 +498,7 @@
             formData.append('first_extract_keywords', firstExtractKeywords);
             formData.append('tailorer_model', document.getElementById('tailorerModel').value);
             formData.append('keywords_model', document.getElementById('keywordsModel').value);
+            formData.append('language', document.getElementById('language').value);
             if (tempActive) formData.append('temperature', parseFloat(tempSlider.value).toFixed(2));
 
             generateBtn.disabled = true;
@@ -533,6 +544,7 @@
             formData.append('job_description', jobDesc);
             formData.append('top_n', 30);
             formData.append('model', document.getElementById('keywordsModel').value);
+            formData.append('language', document.getElementById('language').value);
 
             kwOnlyBtn.disabled = true;
             document.getElementById('kwBtnText').style.display = 'none';

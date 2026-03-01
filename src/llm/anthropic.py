@@ -4,8 +4,8 @@ LLM Client Manager - Handles Anthropic API interactions
 
 import anthropic
 
-from src.config.constants import MAX_TOKENS_TAILOR, ANTHROPIC_TEMPERATURE, MAX_TOKENS_ATS
-from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT, KEYWORDS_USER_TEMPLATE
+from src.config.constants import ValidLanguages, MAX_TOKENS_TAILOR, ANTHROPIC_TEMPERATURE, MAX_TOKENS_ATS
+from src.config.prompts import SYSTEM_PROMPT, USER_PROMPT_TEMPLATE, ATS_SYSTEM_PROMPT, ATS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT, KEYWORDS_USER_TEMPLATE, KEYWORDS_SYSTEM_PROMPT_ES, KEYWORDS_USER_TEMPLATE_ES
 from src.config.schemas import TailoredResume, ATSScoreReport, ExtractedKeywords
 from src.llm.base import BaseLLMClient, BaseLLMTailor, BaseLLMATS
 
@@ -25,9 +25,9 @@ class AnthropicClient(BaseLLMClient):
         except Exception as e:
             print(f"⚠ Anthropic initialization failed: {e}")
 
-    def get_keywords(self, job_description: str, top_n: int = 30, system_prompt: str = None, user_prompt: str = None) -> ExtractedKeywords:
-        system_prompt = system_prompt or KEYWORDS_SYSTEM_PROMPT
-        user_prompt = user_prompt or KEYWORDS_USER_TEMPLATE
+    def get_keywords(self, job_description: str, top_n: int = 30, language: ValidLanguages = ValidLanguages.EN) -> ExtractedKeywords:
+        system_prompt = KEYWORDS_SYSTEM_PROMPT if language == ValidLanguages.EN else KEYWORDS_SYSTEM_PROMPT_ES
+        user_prompt = KEYWORDS_USER_TEMPLATE if language == ValidLanguages.EN else KEYWORDS_USER_TEMPLATE_ES
 
         response = self.client.messages.parse(
             model=self.model,
