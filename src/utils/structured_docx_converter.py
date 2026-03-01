@@ -67,6 +67,17 @@ class StructuredDocxConverter:
     SIZE_BODY        = Pt(10)
     SIZE_JOB_TITLE   = Pt(10)
 
+    # ── Hardcoded overrides ───────────────────────────────────────
+    COMPANY_SUFFIXES_EN = {
+        0: "| Research & Consulting",
+        1: "| USA's Largest Financial Services Provider",
+    }
+
+    COMPANY_SUFFIXES_ES = {
+        0: "| Empresa de consultoria e investigación",
+        1: "| Empresa líder global en servicios financieros",
+    }
+
     def __init__(self, language: ValidLanguages = ValidLanguages.EN):
         self.english = (language == ValidLanguages.EN)
 
@@ -137,7 +148,9 @@ class StructuredDocxConverter:
     def _build_experience(self, doc, experience: list):
         self._add_section_heading(doc, "Professional Experience" if self.english else "Experiencia")
 
-        for entry in experience:
+        for idx, entry in enumerate(experience):
+            suffix = self.COMPANY_SUFFIXES_EN.get(idx, "") if self.english else self.COMPANY_SUFFIXES_ES.get(idx,"")
+
             p = self._add_paragraph(doc, space_before=4, space_after=0)
             run = p.add_run(entry.job_title)
             self._set_font(run, size=self.SIZE_BODY, bold=True)
@@ -184,7 +197,7 @@ class StructuredDocxConverter:
     def _build_education(self, doc):
         self._add_section_heading(doc, "Education")
 
-        entries = [
+        entries_en = [
             {
                 "degree": "Master in Smart Systems",
                 "gpa": "GPA: 9.0/10",
@@ -193,11 +206,11 @@ class StructuredDocxConverter:
                 "dates": "11/2023 – 10/2024",
                 "bullets": [
                     "Specialization: Machine Learning, Deep Learning, Statistics, Data Mining, Data Science, Data Visualization, Econometrics",
-                    'Thesis: "Application of Convolutional Neural Networks in bioacoustics analysis" - Applied advanced analytical modeling techniques to solve complex pattern recognition problem',
+                    'Thesis: "Application of Convolutional Neural Networks in bioacoustics analysis (bees)"',
                 ],
             },
             {
-                "degree": "Bachelor of Science in Electronic Engineering",
+                "degree": "Electronic Engineering",
                 "gpa": "GPA: 8.9/10",
                 "institution": "Catholic University of Argentina (UCA)",
                 "location": "Argentina",
@@ -209,6 +222,32 @@ class StructuredDocxConverter:
             },
         ]
 
+        entries_es = [
+            {
+                "degree": "Master en Sistemas Inteligentes",
+                "gpa": "GPA: 9.0/10",
+                "institution": "Universidad de Salamanca",
+                "location": "España",
+                "dates": "11/2023 – 10/2024",
+                "bullets": [
+                    "Especialización: Machine Learning, Deep Learning, Estadística, Data Mining, Data Science, Data Visualization.",
+                    'Tesis: "Aplicación de redes CNN en el analisis de señales bioacústicas (abejas)".',
+                ],
+            },
+            {
+                "degree": "Ingeniería Electrónica",
+                "gpa": "GPA: 8.9/10",
+                "institution": "Pontificia Universidad Católica Argentina (UCA)",
+                "location": "Argentina",
+                "dates": "03/2016 – 07/2022",
+                "bullets": [
+                    "Plan de estudios cuantitativo que incluye matemáticas aplicadas, investigación operativa, estadística e ingeniería de sistemas",
+                    'Tesis: "Sistema estabilizador de imagen: aplicación del filtro de Kalman utilizando DSP de doble núcleo"',
+                ],
+            },
+        ]
+
+        entries = entries_en if self.english else entries_es
         for edu in entries:
             p = self._add_paragraph(doc, space_before=4, space_after=0)
             run = p.add_run(edu["degree"])
@@ -239,14 +278,14 @@ class StructuredDocxConverter:
             doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
     def _build_certifications(self, doc):
-        self._add_section_heading(doc, "Certifications & Professional Development")
+        self._add_section_heading(doc, "Certifications & Courses" if self.english else "Cursos y Certificaciones")
 
         certs = [
-            "AWS Cloud Practitioner (2025)",
+            "AWS Certified Cloud Practitioner (2025)",
             "Generative AI with Large Language Models Specialization - DeepLearning.AI & AWS (2025)",
-            "Neural Networks Certification (2023)",
-            "Machine Learning Certification (2022)",
-            "MIT Leading Digital Transformation - Santander Scholarship (2020)",
+            "Artificial neural networks: current models and the deep learning paradigm (2024)",
+            "Introduction and Advanced Topics on Machine Learning (2022)",
+            "Leading Digital Transformation - MIT with Santander Scholarship (2020)",
             "PMP Candidate - Project Management Professional (in progress)",
         ]
 
@@ -258,14 +297,21 @@ class StructuredDocxConverter:
             self._set_font(run, size=self.SIZE_BODY)
 
     def _build_awards(self, doc):
-        self._add_section_heading(doc, "Awards & Recognition")
+        self._add_section_heading(doc, "Awards & Recognitions" if self.english else "Premios & Reconocimientos")
 
-        awards = [
+        awards_en = [
             "Winner - Argentine Association of Control's National Thesis Contest (2023)",
-            "Recognition from Microchip Technology and MC Electronics for thesis excellence",
-            "PRIUNES Scholarship - Catholic University of Argentina (2016)",
+            "Recognition from Microchip Technology and MC Electronics for thesis excellence (2023)",
+            "PRIUNES Scholarship to study at the Catholic University of Argentina (2016)",
         ]
 
+        awards_es = [
+            "Ganadora del Concurso Nacional de Tesis de la Asociación Argentina de Control Automático (2023)",
+            "Reconocimiento de Microchip Technology y MC Electronics por excelencia de la tesis (2023)",
+            "Beca PRIUNES para el estudio en la Universidad Católica Argentina (2016)",
+        ]
+
+        awards = awards_en if self.english else awards_es
         for award in awards:
             p = doc.add_paragraph(style='List Bullet')
             p.paragraph_format.space_before = Pt(0)

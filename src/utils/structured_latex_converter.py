@@ -41,23 +41,28 @@ class StructuredLaTeXConverter:
         """Escape special LaTeX characters in a string."""
         return text.translate(LATEX_SPECIAL_CHARS)
 
-    COMPANY_SUFFIXES = {
+    COMPANY_SUFFIXES_EN = {
         0: "| Research & Consulting Organization",
         1: "| USA's Largest Financial Services Provider",
     }
 
-    def _build_education(self) -> str:
+    COMPANY_SUFFIXES_ES = {
+        0: "| Empresa de consultoria e investigación",
+        1: "| Empresa líder global en servicios financieros",
+    }
+
+    def _build_education_en(self) -> str:
         return r"""
 \noindent\textbf{Master in Smart Systems} \hfill \textit{Spain}\\
 \textit{University of Salamanca} \hfill 10/2023 -- 10/2024\\
 \textit{GPA: 9.0/10}
 \begin{itemize}
   \item Specialization: Machine Learning, Deep Learning, Statistics, Data Mining, Data Science, Data Visualization, Econometrics
-  \item Thesis: ``Application of Convolutional Neural Networks in bioacoustics analysis'' -- Applied advanced analytical modeling techniques to solve complex pattern recognition problem
+  \item Thesis: ``Application of Convolutional Neural Networks in bioacoustics analysis''
 \end{itemize}
 \vspace{0.1in}
 
-\noindent\textbf{Bachelor of Science in Electronic Engineering} \hfill \textit{Argentina}\\
+\noindent\textbf{Electronic Engineering} \hfill \textit{Argentina}\\
 \textit{Catholic University of Argentina (UCA)} \hfill 03/2016 -- 07/2022\\
 \text{GPA: 8.9/10}
 \begin{itemize}
@@ -66,12 +71,53 @@ class StructuredLaTeXConverter:
 \end{itemize}
 """
 
-    def _build_awards(self) -> str:
+    def _build_education_es(self) -> str:
+        return r"""
+\noindent\textbf{Master en Sistemas Inteligentes} \hfill \textit{Spain}\\
+\textit{University of Salamanca} \hfill 10/2023 -- 10/2024\\
+\textit{GPA: 9.0/10}
+\begin{itemize}
+  \item Especialización: Machine Learning, Deep Learning, Estadística, Data Mining, Data Science, Data Visualization, Econometrics
+  \item Tesis: ``Aplicación de redes CNN en el analisis de señales bioacústicas (abejas)''
+\end{itemize}
+\vspace{0.1in}
+
+\noindent\textbf{Ingeniería Electrónica} \hfill \textit{Argentina}\\
+\textit{Pontificia Universidad Católica Argentina (UCA)} \hfill 03/2016 -- 07/2022\\
+\text{GPA: 8.9/10}
+\begin{itemize}
+  \item Plan de estudios cuantitativo que incluye matemáticas aplicadas, investigación operativa, estadística e ingeniería de sistemas
+  \item Tesis: ``Sistema estabilizador de imagen: aplicación del filtro de Kalman utilizando DSP de doble núcleo''
+\end{itemize}
+"""
+
+    def _build_awards_en(self) -> str:
         return r"""
 \begin{itemize}
-  \item Winner -- Argentine Association of Control's National Student Thesis Contest (2023)
-  \item Recognition from Microchip Technology and MC Electronics for thesis excellence in analytical problem-solving
-  \item PRIUNES Scholarship -- Catholic University of Argentina (2016)
+  \item Winner -- Argentine Association of Control's National Thesis Contest (2023)
+  \item Recognition from Microchip Technology and MC Electronics for thesis excellence (2023)
+  \item PRIUNES Scholarship to study at the Catholic University of Argentina (2016)
+\end{itemize}
+"""
+
+    def _build_awards_es(self) -> str:
+        return r"""
+\begin{itemize}
+  \item Ganadora del Concurso Nacional de Tesis de la Asociación Argentina de Control Automático (2023)
+  \item Reconocimiento de Microchip Technology y MC Electronics por excelencia de la tesis (2023)
+  \item Beca PRIUNES para el estudio en la Universidad Católica Argentina (2016)
+\end{itemize}
+"""
+
+    def _build_courses_en(self) -> str:
+        return r"""
+\begin{itemize}
+  \item AWS Certified Cloud Practitioner (2025)
+  \item Generative AI with Large Language Models Specialization -- DeepLearning.AI & AWS (2025)
+  \item Artificial neural networks: current models and the deep learning paradigm (2024)
+  \item Introduction and Advanced Topics on Machine Learning (2022)
+  \item Leading Digital Transformation - MIT with Santander Scholarship (2020)
+  \item PMP Candidate - Project Management Professional (in progress)
 \end{itemize}
 """
 
@@ -86,7 +132,7 @@ class StructuredLaTeXConverter:
             end       = self.clean(entry.end_date)
 
             # Append hardcoded company suffix if defined
-            suffix = self.COMPANY_SUFFIXES.get(idx, "")
+            suffix = self.COMPANY_SUFFIXES_EN.get(idx, "") if self.english else self.COMPANY_SUFFIXES_ES
             company_display = f"{company} {suffix}" if suffix else company
 
             # Company + location on one line, dates flush-right
@@ -141,8 +187,9 @@ class StructuredLaTeXConverter:
         summary     = self.clean(resume.professional_summary)
         experience  = self._build_experience(resume.professional_experience)
         skills      = self._build_skills(resume.skills)
-        education   = self._build_education()
-        awards      = self._build_awards()
+        education   = self._build_education_en() if self.english else self._build_education_es()
+        courses     = self._build_courses_en()
+        awards      = self._build_awards_en()  if self.english else self._build_awards_es()
 
         doc = rf"""\documentclass[11pt,letterpaper]{{article}}
 
@@ -204,17 +251,22 @@ class StructuredLaTeXConverter:
 % ── Professional Experience ───────────────────────────────────────────
 \section*{{{'Professional Experience' if self.english else 'Experiencia'}}}
 {experience}
+
+% ── Education ────────────────────────────────────────────────────────
+\section*{{{'Education' if self.english else 'Educación'}}}
+{education}
+
+% ── Education ────────────────────────────────────────────────────────
+\section*{{{'Certifications & Courses' if self.english else 'Cursos y Certificaciones'}}}
+{courses}
+
+% ── Awards \& Recognition ─────────────────────────────────────────────
+\section*{{{'Awards \& Recognitions' if self.english else 'Premios \& Reconocimientos'}}}
+{awards}
+\end{{document}}
+
 % ── Skills ───────────────────────────────────────────────────────────
 \section*{{Skills}}
 {skills}
-
-% ── Education ────────────────────────────────────────────────────────
-\section*{{Education}}
-{education}
-
-% ── Awards \& Recognition ─────────────────────────────────────────────
-\section*{{Awards \& Recognition}}
-{awards}
-\end{{document}}
 """
         return doc
